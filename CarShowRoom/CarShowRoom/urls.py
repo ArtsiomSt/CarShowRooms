@@ -21,7 +21,7 @@ import debug_toolbar
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", include("sellers.urls"))
+    path("", include("sellers.api.v1.urls"))
 ]
 
 if DEBUG:

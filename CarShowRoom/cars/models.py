@@ -1,28 +1,18 @@
 from django.db import models
-from django.utils import timezone
 from django_countries.fields import CountryField
+from core.models import DefaultFields
+from core.enums.carenums import PriceCategory, EngineType
 
 
-class CarBrand(models.Model):
+class CarBrand(DefaultFields):
     title = models.CharField(max_length=30)
-    country = CountryField
-    date_created = models.DateTimeField(default=timezone.now())
-    date_modified = models.DateTimeField(default=timezone.now())
-    is_active = models.BooleanField(default=True)
+    country = CountryField()
+
+    def __str__(self):
+        return f'{self.title}'
 
 
-class Car(models.Model):
-    class EngineType(models.TextChoices):
-        FUEL = "F", "Fuel"
-        DIESEL = "D", "Diesel"
-        HYBRID = "H", "Hybrid"
-        GAS = "G", "Gas"
-
-    class PriceCategory(models.TextChoices):
-        CHEAP = "C", "Cheap"
-        MEDIUM = "M", "Medium"
-        LUXURY = "L", "Luxury"
-
+class Car(DefaultFields):
     title = models.CharField(max_length=40)
     car_brand = models.ForeignKey(
         CarBrand, on_delete=models.PROTECT, null=True, blank=True, related_name="cars"
@@ -30,16 +20,16 @@ class Car(models.Model):
     doors_amount = models.IntegerField(default=3)
     engine_power = models.IntegerField()
     engine_type = models.CharField(
-        max_length=20, choices=EngineType.choices, default=EngineType.FUEL
+        max_length=20, choices=EngineType.choices(), default=EngineType.FUEL
     )
     year_produced = models.IntegerField()
     price_category = models.CharField(
-        max_length=20, choices=PriceCategory.choices, default=PriceCategory.MEDIUM
+        max_length=20, choices=PriceCategory.choices(), default=PriceCategory.MEDIUM
     )
     length = models.FloatField()
     width = models.FloatField()
     height = models.FloatField()
     max_speed = models.IntegerField()
-    date_created = models.DateTimeField(default=timezone.now())
-    date_modified = models.DateTimeField(default=timezone.now())
-    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f'{self.car_brand} {self.title}'

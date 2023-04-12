@@ -1,15 +1,12 @@
 from django.db import models
-from django.utils import timezone
+from django.contrib.auth.models import User
 from django_countries.fields import CountryField
+from core.models import DefaultFields
+from core.enums.carenums import PriceCategory
 from cars.models import CarBrand, Car
 
 
-class CarShowRoom(models.Model):
-    class PriceCategory(models.TextChoices):
-        CHEAP = "C", "Cheap"
-        MEDIUM = "M", "Medium"
-        LUXURY = "L", "Luxury"
-
+class CarShowRoom(User):
     name = models.CharField(max_length=40)
     city = models.CharField(max_length=40)
     country = CountryField()
@@ -24,26 +21,29 @@ class CarShowRoom(models.Model):
         Car, through="ShowroomCar", related_name="showrooms"
     )
     price_category = models.CharField(
-        max_length=10, choices=PriceCategory.choices, default=PriceCategory.MEDIUM
+        max_length=10, choices=PriceCategory.choices(), default=PriceCategory.MEDIUM
     )
-    date_created = models.DateTimeField(default=timezone.now())
-    date_modified = models.DateTimeField(default=timezone.now())
-    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f'{self.name} showroom located in {self.country}'
 
 
-class Dealer(models.Model):
+class Dealer(User):
     name = models.CharField(max_length=40)
     year_founded = models.IntegerField()
     money_turnover = models.DecimalField(max_digits=8, decimal_places=2)
     car_list = models.ManyToManyField(Car, through="DealerCar", related_name="dealers")
-    date_created = models.DateTimeField(default=timezone.now())
-    date_modified = models.DateTimeField(default=timezone.now())
-    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f'{self.name} dealer'
 
 
 class ShowroomBrand(models.Model):
     car_showroom = models.ForeignKey(CarShowRoom, on_delete=models.CASCADE)
     car_brand = models.ForeignKey(CarBrand, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.car_showroom} sells cars from {self.car_brand}'
 
 
 class DealerCar(models.Model):
@@ -51,6 +51,9 @@ class DealerCar(models.Model):
     car = models.ForeignKey(Car, on_delete=models.CASCADE)
     car_price = models.DecimalField(max_digits=6, decimal_places=2)
     car_sold = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f'{self.dealer} supplies {self.car}'
 
 
 class ShowroomCar(models.Model):
@@ -61,9 +64,15 @@ class ShowroomCar(models.Model):
     car_amount = models.IntegerField(default=1)
     car_sold = models.IntegerField(default=0)
 
+    def __str__(self):
+        return f'{self.car_showroom} sells {self.car}'
+
 
 class DealerShowroom(models.Model):
     dealer = models.ForeignKey(Dealer, on_delete=models.CASCADE)
     car_showroom = models.ForeignKey(CarShowRoom, on_delete=models.CASCADE)
     deals_amount = models.IntegerField(default=1)
     discount = models.FloatField(default=0)
+
+    def __str__(self):
+        return f'{self.dealer} cooperates with {self.car_showroom}'
