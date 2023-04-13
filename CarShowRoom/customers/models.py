@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from sellers.models import CarShowRoom, Car, Balance
-from core.models import DefaultTimeFields, CarPriceCurrency
+from core.models import DefaultTimeFields
 from core.validation.validators import validate_positive, validate_phone
 from core.enums.moneyenums import MoneyCurrency
 
@@ -15,14 +15,14 @@ class Customer(User):
         on_delete=models.PROTECT,
         null=True,
         blank=True,
-        related_name="instance",
+        related_name="balance_customer",
     )
     showrooms = models.ManyToManyField(
         CarShowRoom, through="ShowroomCustomer", related_name="customers"
     )
 
     def __str__(self):
-        return f"{self.last_name} {self.first_name}"
+        return f"Customer - {self.user.username}"
 
 
 class Offer(DefaultTimeFields):
@@ -42,16 +42,23 @@ class Offer(DefaultTimeFields):
         return f"Offer made by {self.made_by_customer} for the {self.car}"
 
 
-class TransactionHistory(CarPriceCurrency):
-    offer = models.ForeignKey(
-        Offer, on_delete=models.CASCADE, related_name="transactions"
+class TransactionHistory(DefaultTimeFields):
+    made_by_customer = models.ForeignKey(
+        Customer, on_delete=models.CASCADE, related_name="transactions"
     )
-    car_showroom = models.ForeignKey(
+    car = models.ForeignKey(Car, on_delete=models.CASCADE, related_name="transactions")
+    sold_by_showroom = models.ForeignKey(
         CarShowRoom, on_delete=models.PROTECT, related_name="transactions"
+    )
+    deal_price = models.DecimalField(
+        max_digits=7, decimal_places=2, validators=[validate_positive]
+    )
+    currency = models.CharField(
+        max_length=40, choices=MoneyCurrency.choices(), default=MoneyCurrency.USD.name
     )
 
     def __str__(self):
-        return f"{self.offer}".replace("Offer", "Transaction")
+        return "Transaction"
 
 
 class ShowroomCustomer(models.Model):

@@ -14,6 +14,7 @@ django-debug-toolbar = "==3.2"
 pylint = "*"
 django-countries = "*"
 drf-yasg = "*"
+django-extensions = "*"
 
 [dev-packages]
 

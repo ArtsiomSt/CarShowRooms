@@ -14,7 +14,12 @@ class DefaultTimeFields(models.Model):
 
 
 class CarPriceCurrency(models.Model):
-    car_price = models.DecimalField(max_digits=6, decimal_places=2, validators=[validate_positive])
+    car_price = models.DecimalField(
+        max_digits=6, decimal_places=2, validators=[validate_positive]
+    )
     currency = models.CharField(
         max_length=40, choices=MoneyCurrency.choices(), default=MoneyCurrency.USD.name
     )
+
+    class Meta:
+        abstract = True

@@ -26,13 +26,10 @@ SECRET_KEY = "django-insecure-7#@n^@h=8=uul!ge2q(!ms(l+$o55sg=r$z4x*t+5hsabguvcf
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    '0.0.0.0',
+    "0.0.0.0",
 ]
 
-INTERNAL_IPS = [
-    "127.0.0.1",
-    "0.0.0.0"
-]
+INTERNAL_IPS = ["127.0.0.1", "0.0.0.0"]
 
 # Application definition
 
@@ -43,8 +40,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django_extensions",
     "debug_toolbar",
-    'drf_yasg',
+    "core",
+    "drf_yasg",
     "rest_framework",
     "sellers",
     "customers",
@@ -87,13 +86,13 @@ WSGI_APPLICATION = "CarShowRoom.wsgi.application"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('POSTGRES_DB', 'carshowroom'),
-        'USER': os.getenv('POSTGRES_USER', 'postgres'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'postgrespostgres'),
-        'HOST': os.getenv('POSTGRES_HOST', 'db'),
-        'PORT': os.getenv('POSTGRES_PORT', '5432'),
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv("POSTGRES_DB", "carshowroom"),
+        "USER": os.getenv("POSTGRES_USER", "postgres"),
+        "PASSWORD": os.getenv("POSTGRES_PASSWORD", "postgrespostgres"),
+        "HOST": os.getenv("POSTGRES_HOST", "db"),
+        "PORT": os.getenv("POSTGRES_PORT", "5432"),
     }
 }
 
@@ -142,4 +141,5 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 if DEBUG:
     import mimetypes
+
     mimetypes.add_type("application/javascript", ".js", True)

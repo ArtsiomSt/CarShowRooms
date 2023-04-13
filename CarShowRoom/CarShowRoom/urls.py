@@ -10,7 +10,7 @@ import debug_toolbar
 schema_view = get_schema_view(
     openapi.Info(
         title="Snippets API",
-        default_version='v1',
+        default_version="v1",
         description="Test description",
         terms_of_service="https://www.google.com/policies/terms/",
         contact=openapi.Contact(email="contact@snippets.local"),
@@ -20,13 +20,29 @@ schema_view = get_schema_view(
     permission_classes=[permissions.AllowAny],
 )
 
+api_v1_urls = (
+    [
+        path("sellers/", include("sellers.api.v1.urls")),
+        path("cars/", include("cars.api.v1.urls")),
+        path("customers/", include("customers.api.v1.urls")),
+    ],
+    "api_v1",
+)
+
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", include("sellers.api.v1.urls")),
-    re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
-    re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-    re_path(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    re_path(
+        r"^swagger/$",
+        schema_view.with_ui("swagger", cache_timeout=0),
+        name="schema-swagger-ui",
+    ),
+    re_path(
+        r"^redoc/$",
+        schema_view.with_ui("redoc", cache_timeout=0),
+        name="schema-redoc"
+    ),
+    path("api/v1/", include(api_v1_urls)),
 ]
 
 if DEBUG:
-    urlpatterns = urlpatterns + [path('__debug__/', include(debug_toolbar.urls))]
+    urlpatterns = urlpatterns + [path("__debug__/", include(debug_toolbar.urls))]

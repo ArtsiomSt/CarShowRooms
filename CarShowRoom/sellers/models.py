@@ -5,7 +5,7 @@ from django_countries.fields import CountryField
 from core.enums.carenums import PriceCategory
 from core.enums.moneyenums import MoneyCurrency
 from core.validation.validators import validate_positive, validate_phone
-from core.models import DefaultTimeFields, CarPriceCurrency
+from core.models import CarPriceCurrency
 from cars.models import CarBrand, Car
 
 
@@ -20,7 +20,7 @@ class CarShowRoom(User):
         on_delete=models.PROTECT,
         null=True,
         blank=True,
-        related_name="instance",
+        related_name="car_showroom",
     )
     phone_number = models.CharField(
         max_length=20, null=True, blank=True, validators=[validate_phone]
@@ -29,7 +29,7 @@ class CarShowRoom(User):
         CarBrand, through="ShowroomBrand", related_name="car_showrooms"
     )
     car_list = models.ManyToManyField(
-        Car, through="ShowroomCar", related_name="showrooms"
+        Car, through="ShowroomCar", related_name="car_showrooms"
     )
     price_category = models.CharField(
         max_length=10, choices=PriceCategory.choices(), default=PriceCategory.MEDIUM
@@ -56,7 +56,7 @@ class Dealer(User):
         on_delete=models.PROTECT,
         null=True,
         blank=True,
-        related_name="instance",
+        related_name="dealer",
     )
     car_list = models.ManyToManyField(Car, through="DealerCar", related_name="dealers")
 
