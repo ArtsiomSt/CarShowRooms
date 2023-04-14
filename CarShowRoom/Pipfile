@@ -15,6 +15,7 @@ pylint = "*"
 django-countries = "*"
 drf-yasg = "*"
 django-extensions = "*"
+flake8-isort = "*"
 
 [dev-packages]
 

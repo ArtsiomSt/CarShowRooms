@@ -1,13 +1,14 @@
+from django.core.validators import MinValueValidator
 from django.db import models
 from django_countries.fields import CountryField
-from django.core.validators import MinValueValidator
+
+from core.enums.carenums import EngineType, PriceCategory
 from core.models import DefaultTimeFields
-from core.enums.carenums import PriceCategory, EngineType
 from core.validation.validators import validate_positive
 
 
 class CarBrand(DefaultTimeFields):
-    title = models.CharField(max_length=30)
+    title = models.CharField(max_length=30, null=False, blank=False, unique=True)
     country = CountryField()
 
     def __str__(self):
@@ -15,7 +16,7 @@ class CarBrand(DefaultTimeFields):
 
 
 class Car(DefaultTimeFields):
-    title = models.CharField(max_length=40)
+    title = models.CharField(max_length=40, null=False, blank=False)
     car_brand = models.ForeignKey(
         CarBrand, on_delete=models.PROTECT, null=True, blank=True, related_name="cars"
     )

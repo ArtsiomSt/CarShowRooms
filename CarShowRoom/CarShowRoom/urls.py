@@ -1,11 +1,11 @@
-from django.contrib import admin
-from django.urls import path, include, re_path
-from rest_framework import permissions
-from drf_yasg.views import get_schema_view
-from drf_yasg import openapi
-from .settings import DEBUG
 import debug_toolbar
+from django.contrib import admin
+from django.urls import include, path, re_path
+from drf_yasg import openapi
+from drf_yasg.views import get_schema_view
+from rest_framework import permissions
 
+from .settings import DEBUG, SHOW_SWAGGER
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -31,18 +31,22 @@ api_v1_urls = (
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    re_path(
-        r"^swagger/$",
-        schema_view.with_ui("swagger", cache_timeout=0),
-        name="schema-swagger-ui",
-    ),
-    re_path(
-        r"^redoc/$",
-        schema_view.with_ui("redoc", cache_timeout=0),
-        name="schema-redoc"
-    ),
     path("api/v1/", include(api_v1_urls)),
 ]
 
 if DEBUG:
     urlpatterns = urlpatterns + [path("__debug__/", include(debug_toolbar.urls))]
+
+if SHOW_SWAGGER:
+    urlpatterns = urlpatterns + [
+        re_path(
+            r"^swagger/$",
+            schema_view.with_ui("swagger", cache_timeout=0),
+            name="schema-swagger-ui",
+        ),
+        re_path(
+            r"^redoc/$",
+            schema_view.with_ui("redoc", cache_timeout=0),
+            name="schema-redoc",
+        ),
+    ]

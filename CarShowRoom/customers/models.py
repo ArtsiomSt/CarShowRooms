@@ -1,9 +1,10 @@
-from django.db import models
 from django.contrib.auth.models import User
-from sellers.models import CarShowRoom, Car, Balance
-from core.models import DefaultTimeFields
-from core.validation.validators import validate_positive, validate_phone
+from django.db import models
+
 from core.enums.moneyenums import MoneyCurrency
+from core.models import DefaultTimeFields
+from core.validation.validators import validate_phone, validate_positive
+from sellers.models import Balance, Car, CarShowRoom
 
 
 class Customer(User):

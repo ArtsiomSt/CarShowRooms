@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+
 from .enums.moneyenums import MoneyCurrency
 from .validation.validators import validate_positive
 

@@ -1,16 +1,17 @@
-from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
+from django.db import models
 from django_countries.fields import CountryField
+
+from cars.models import Car, CarBrand
 from core.enums.carenums import PriceCategory
 from core.enums.moneyenums import MoneyCurrency
-from core.validation.validators import validate_positive, validate_phone
 from core.models import CarPriceCurrency
-from cars.models import CarBrand, Car
+from core.validation.validators import validate_phone, validate_positive
 
 
 class CarShowRoom(User):
-    name = models.CharField(max_length=40)
+    name = models.CharField(max_length=40, null=False, blank=False, unique=True)
     city = models.CharField(max_length=40)
     country = CountryField()
     address = models.TextField()
@@ -40,7 +41,7 @@ class CarShowRoom(User):
 
 
 class Dealer(User):
-    name = models.CharField(max_length=40)
+    name = models.CharField(max_length=40, null=False, blank=False, unique=True)
     phone_number = models.CharField(
         max_length=20, null=True, blank=True, validators=[validate_phone]
     )
