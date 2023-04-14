@@ -12,6 +12,10 @@ psycopg2-binary = "*"
 black = "*"
 django-debug-toolbar = "==3.2"
 pylint = "*"
+django-countries = "*"
+drf-yasg = "*"
+django-extensions = "*"
+flake8-isort = "*"
 
 [dev-packages]
 
