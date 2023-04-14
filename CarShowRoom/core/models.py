@@ -6,8 +6,8 @@ from .validation.validators import validate_positive
 
 
 class DefaultTimeFields(models.Model):
-    created_at = models.DateTimeField(default=timezone.now())
-    modified_at = models.DateTimeField(null=True, blank=True, default=None)
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True, null=True, blank=True)
     is_active = models.BooleanField(default=True)
 
     class Meta:
