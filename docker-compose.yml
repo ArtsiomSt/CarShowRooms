@@ -11,7 +11,6 @@ services:
     env_file:
       - env/db.env
       - env/backends.env
-      - env/swagger.env
     volumes:
       - ./CarShowRoom:/app
   db:

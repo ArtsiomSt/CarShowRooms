@@ -27,6 +27,8 @@ DEBUG = True
 
 SHOW_SWAGGER = True if os.getenv("SHOW_SWAGGER", "False") == "True" else False
 
+APPEND_SLASH = False
+
 ALLOWED_HOSTS = [
     "0.0.0.0",
 ]

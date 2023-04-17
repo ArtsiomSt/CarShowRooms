@@ -1,7 +1,9 @@
-from django.urls import path
+from rest_framework import routers
 
-from sellers.api.v1.views import TestView
+from .views import CarBrandViewSet, CarViewSet
 
-urlpatterns = [
-    path("", TestView.as_view()),  # It is made to see that django can see those urls
-]
+router = routers.DefaultRouter()
+router.register(r"carbrand", CarBrandViewSet)
+router.register(r"car", CarViewSet)
+
+urlpatterns = router.urls
