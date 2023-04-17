@@ -1,19 +1,18 @@
-from django.urls import path
+from rest_framework import routers
 
 from .views import (
-    CreateUpdateCar,
+    CreateRetrieveUpdateCar,
     GetCarBrands,
     GetCarList,
     RetrieveUpdateCreateCarBrand,
 )
 
-urlpatterns = [
-    path("", GetCarList.as_view(), name="cars"),
-    path("changecar/", CreateUpdateCar.as_view(), name="cu_cars"),
-    path(
-        "carbrands/<slug:slug>",
-        RetrieveUpdateCreateCarBrand.as_view(),
-        name="cru_carbrand",
-    ),
-    path("carbrands/", GetCarBrands.as_view(), name="carbrands"),
-]
+router = routers.DefaultRouter()
+router.register(r"carbrands", GetCarBrands)
+router.register(r"carbrand", RetrieveUpdateCreateCarBrand)
+router.register(r"", GetCarList)
+router.register(r"car", CreateRetrieveUpdateCar)
+
+urlpatterns = []
+
+urlpatterns += router.urls
