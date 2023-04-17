@@ -1,18 +1,9 @@
 from rest_framework import routers
 
-from .views import (
-    CreateRetrieveUpdateCar,
-    GetCarBrands,
-    GetCarList,
-    RetrieveUpdateCreateCarBrand,
-)
+from .views import CarBrandViewSet, CarViewSet
 
 router = routers.DefaultRouter()
-router.register(r"carbrands", GetCarBrands)
-router.register(r"carbrand", RetrieveUpdateCreateCarBrand)
-router.register(r"", GetCarList)
-router.register(r"car", CreateRetrieveUpdateCar)
+router.register(r"carbrand", CarBrandViewSet)
+router.register(r"car", CarViewSet)
 
-urlpatterns = []
-
-urlpatterns += router.urls
+urlpatterns = router.urls

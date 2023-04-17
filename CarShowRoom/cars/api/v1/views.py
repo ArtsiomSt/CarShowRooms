@@ -13,10 +13,14 @@ from cars.api.serializers import CarBrandSerializer, CarSerializer
 from cars.models import Car, CarBrand
 
 
-class RetrieveUpdateCreateCarBrand(
-    UpdateModelMixin, RetrieveModelMixin, CreateModelMixin, GenericViewSet
+class CarBrandViewSet(
+    ListModelMixin,
+    UpdateModelMixin,
+    RetrieveModelMixin,
+    CreateModelMixin,
+    GenericViewSet,
 ):
-    """ViewSet for retrieving, updating and creating CarBrand instances"""
+    """ViewSet for retrieving, updating, creating and getting all CarBrand instances"""
 
     queryset = CarBrand.objects.filter(is_active=True)
     serializer_class = CarBrandSerializer
@@ -24,24 +28,14 @@ class RetrieveUpdateCreateCarBrand(
     lookup_url_kwarg = "slug"
 
 
-class GetCarBrands(ListModelMixin, GenericViewSet):
-    """ViewSet for getting a list of all active CarBrand instances"""
-
-    queryset = CarBrand.objects.filter(is_active=True)
-    serializer_class = CarBrandSerializer
-
-
-class GetCarList(ListModelMixin, GenericViewSet):
-    """ViewSet for getting a list of all active Car instances"""
-
-    queryset = Car.objects.filter(is_active=True)
-    serializer_class = CarSerializer
-
-
-class CreateRetrieveUpdateCar(
-    RetrieveModelMixin, CreateModelMixin, UpdateModelMixin, GenericViewSet
+class CarViewSet(
+    ListModelMixin,
+    RetrieveModelMixin,
+    CreateModelMixin,
+    UpdateModelMixin,
+    GenericViewSet,
 ):
-    """ViewSet for creating, retrieving and updating Car instances"""
+    """ViewSet for creating, retrieving, updating, getting all Car instances"""
 
     queryset = Car.objects.all()
     serializer_class = CarSerializer
