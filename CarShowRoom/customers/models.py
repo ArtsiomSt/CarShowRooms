@@ -23,7 +23,7 @@ class Customer(User):
     )
 
     def __str__(self):
-        return f"Customer - {self.user.username}"
+        return f"Customer - {self.username}"
 
 
 class Offer(DefaultTimeFields):

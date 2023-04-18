@@ -33,7 +33,9 @@ class CarShowRoom(User):
         Car, through="ShowroomCar", related_name="car_showrooms"
     )
     price_category = models.CharField(
-        max_length=10, choices=PriceCategory.choices(), default=PriceCategory.MEDIUM.name
+        max_length=10,
+        choices=PriceCategory.choices(),
+        default=PriceCategory.MEDIUM.name,
     )
 
     def __str__(self):
