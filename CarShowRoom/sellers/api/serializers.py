@@ -1,9 +1,35 @@
-from rest_framework import serializers
+from core.serializers import RegisterSerializer
+from sellers.models import CarShowRoom, Dealer
 
-from sellers.models import Balance
 
-
-class BalanceSerializer(serializers.ModelSerializer):
+class CarShowRoomSerializer(RegisterSerializer):
     class Meta:
-        model = Balance
-        fields = ("money_amount", "currency")
+        model = CarShowRoom
+        fields = (
+            "username",
+            "email",
+            "password",
+            "name",
+            "country",
+            "address",
+            "margin",
+            "balance",
+            "phone_number",
+            "car_brands",
+            "price_category",
+        )
+
+
+class DealerSerializer(RegisterSerializer):
+    class Meta:
+        model = Dealer
+        fields = (
+            "username",
+            "email",
+            "password",
+            "name",
+            "phone_number",
+            "year_founded",
+            "balance",
+            "car_list",
+        )

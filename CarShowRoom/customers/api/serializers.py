@@ -1,5 +1,5 @@
-from customers.models import Customer
 from core.serializers import RegisterSerializer
+from customers.models import Customer
 
 
 class CustomerSerializer(RegisterSerializer):

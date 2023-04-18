@@ -37,7 +37,7 @@ class CarViewSet(
 ):
     """ViewSet for creating, retrieving, updating, getting all Car instances"""
 
-    queryset = Car.objects.all()
+    queryset = Car.objects.filter(is_active=True)
     serializer_class = CarSerializer
 
     def create(self, request, *args, **kwargs):

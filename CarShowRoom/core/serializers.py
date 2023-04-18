@@ -2,8 +2,13 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 
-from sellers.api.serializers import BalanceSerializer
 from sellers.models import Balance
+
+
+class BalanceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Balance
+        fields = ("money_amount", "currency")
 
 
 class RegisterSerializer(serializers.ModelSerializer):
