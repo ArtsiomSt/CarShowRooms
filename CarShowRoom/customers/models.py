@@ -18,6 +18,7 @@ class Customer(User):
         blank=True,
         related_name="balance_customer",
     )
+    is_email_verified = models.BooleanField(default=False)
     showrooms = models.ManyToManyField(
         CarShowRoom, through="ShowroomCustomer", related_name="customers"
     )

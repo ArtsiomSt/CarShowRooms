@@ -26,6 +26,7 @@ class CarShowRoom(User):
     phone_number = models.CharField(
         max_length=20, null=True, blank=True, validators=[validate_phone]
     )
+    is_email_verified = models.BooleanField(default=False)
     car_brands = models.ManyToManyField(
         CarBrand, through="ShowroomBrand", related_name="car_showrooms"
     )
@@ -47,6 +48,7 @@ class Dealer(User):
     phone_number = models.CharField(
         max_length=20, null=True, blank=True, validators=[validate_phone]
     )
+    is_email_verified = models.BooleanField(default=False)
     year_founded = models.IntegerField(
         validators=[
             MinValueValidator(

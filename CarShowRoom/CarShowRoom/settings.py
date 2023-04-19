@@ -189,3 +189,26 @@ if DEBUG:
     import mimetypes
 
     mimetypes.add_type("application/javascript", ".js", True)
+
+
+EMAIL_HOST = 'smtp.yandex.ru'
+EMAIL_PORT = 465
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True
+
+EMAIL_HOST_USER = 'akeonst@yandex.ru'
+EMAIL_HOST_PASSWORD = 'kikpnvjcxiedcawi'
+DEFAULT_FROM_EMAIL = 'akeonst@yandex.ru'
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://redis:6379/1',
+        "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
+USER_CONFIRMATION_KEY = "user_confirmation_{token}"
+USER_CONFIRMATION_TIMEOUT = 300

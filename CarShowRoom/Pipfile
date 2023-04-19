@@ -17,6 +17,7 @@ drf-yasg = "*"
 django-extensions = "*"
 flake8-isort = "*"
 djangorestframework-simplejwt = "*"
+django-redis = "*"
 
 [dev-packages]
 
