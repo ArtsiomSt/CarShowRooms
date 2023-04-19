@@ -20,7 +20,5 @@ class RegisterSerializer(serializers.ModelSerializer):
     )
 
     def create(self, validated_data):
-        new_balance = Balance.objects.create(money_amount=0)
-        validated_data["balance"] = new_balance
         validated_data["password"] = make_password(validated_data["password"])
         return super().create(validated_data)

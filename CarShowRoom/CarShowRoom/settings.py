@@ -50,9 +50,9 @@ INSTALLED_APPS = [
     "core",
     "drf_yasg",
     "rest_framework",
-    "sellers",
-    "customers",
-    "cars",
+    "sellers.apps.SellersConfig",
+    "customers.apps.CustomersConfig",
+    "cars.apps.CarsConfig",
 ]
 
 MIDDLEWARE = [
