@@ -1,16 +1,12 @@
-from django.contrib.auth.models import User
 from django.db import models
 
 from core.enums.moneyenums import MoneyCurrency
-from core.models import DefaultTimeFields
-from core.validation.validators import validate_phone, validate_positive
+from core.models import DefaultTimeFields, User
+from core.validation.validators import validate_positive
 from sellers.models import Balance, Car, CarShowRoom
 
 
 class Customer(User):
-    phone_number = models.CharField(
-        max_length=20, blank=True, null=True, validators=[validate_phone]
-    )
     balance = models.OneToOneField(
         Balance,
         on_delete=models.PROTECT,
@@ -18,7 +14,6 @@ class Customer(User):
         blank=True,
         related_name="balance_customer",
     )
-    is_email_verified = models.BooleanField(default=False)
     showrooms = models.ManyToManyField(
         CarShowRoom, through="ShowroomCustomer", related_name="customers"
     )

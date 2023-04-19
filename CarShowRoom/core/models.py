@@ -1,8 +1,8 @@
+from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.utils import timezone
 
 from .enums.moneyenums import MoneyCurrency
-from .validation.validators import validate_positive
+from .validation.validators import validate_phone, validate_positive
 
 
 class DefaultTimeFields(models.Model):
@@ -24,3 +24,11 @@ class CarPriceCurrency(models.Model):
 
     class Meta:
         abstract = True
+
+
+class User(AbstractUser):
+    email = models.EmailField(blank=False, null=False)
+    phone_number = models.CharField(
+        max_length=20, blank=True, null=True, validators=[validate_phone]
+    )
+    is_email_verified = models.BooleanField(default=False)

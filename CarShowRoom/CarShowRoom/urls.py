@@ -6,8 +6,9 @@ from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
+from core.views import ConfirmEmailView
+
 from .settings import DEBUG, SHOW_SWAGGER
-from customers.api.v1.views import ConfirmEmailView
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -35,7 +36,9 @@ token_urls = (
     [
         path("token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
         path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
-        path("verifyemail/<str:token>", ConfirmEmailView.as_view(), name="email_confirm")
+        path(
+            "verifyemail/<str:token>", ConfirmEmailView.as_view(), name="email_confirm"
+        ),
     ],
     "tokens",
 )
