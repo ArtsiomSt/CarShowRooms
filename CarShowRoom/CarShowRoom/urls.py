@@ -6,7 +6,7 @@ from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from core.views import ConfirmEmailView
+from core.views import ConfirmEmailView, ManualConfirmEmailView
 
 from .settings import DEBUG, SHOW_SWAGGER
 
@@ -39,6 +39,9 @@ token_urls = (
         path(
             "verifyemail/<str:token>", ConfirmEmailView.as_view(), name="email_confirm"
         ),
+        path(
+            "manualemailverify/", ManualConfirmEmailView.as_view(), name="manual_email_confirm"
+        )
     ],
     "tokens",
 )

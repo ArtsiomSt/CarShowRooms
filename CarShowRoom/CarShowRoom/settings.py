@@ -197,13 +197,13 @@ EMAIL_USE_TLS = False
 EMAIL_USE_SSL = True
 
 EMAIL_HOST_USER = "akeonst@yandex.ru"
-EMAIL_HOST_PASSWORD = "kikpnvjcxiedcawi"
+EMAIL_HOST_PASSWORD = os.getenv("EMAIl_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = "akeonst@yandex.ru"
 
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://redis:6379/1",
+        "LOCATION": "redis://{}:{}/1".format(os.getenv("REDIS_HOST", "redis"), os.getenv("REDIS_PORT", "6379")),
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         },
