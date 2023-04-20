@@ -4,6 +4,9 @@ from django.urls import include, path, re_path
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+
+from core.views import ConfirmEmailView, ManualConfirmEmailView
 
 from .settings import DEBUG, SHOW_SWAGGER
 
@@ -29,9 +32,24 @@ api_v1_urls = (
     "api_v1",
 )
 
+token_urls = (
+    [
+        path("token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
+        path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+        path(
+            "verifyemail/<str:token>", ConfirmEmailView.as_view(), name="email_confirm"
+        ),
+        path(
+            "manualemailverify/", ManualConfirmEmailView.as_view(), name="manual_email_confirm"
+        )
+    ],
+    "tokens",
+)
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/v1/", include(api_v1_urls)),
+    path("auth/", include(token_urls)),
 ]
 
 if DEBUG:

@@ -21,6 +21,13 @@ services:
       - env/db.env
     ports:
       - "5555:5432"
+  redis:
+    image: redis:alpine
+    container_name: redis
+    hostname: redis
+    ports:
+       - "6379:6379"
+    restart: always
 
 volumes:
   postgres_data:

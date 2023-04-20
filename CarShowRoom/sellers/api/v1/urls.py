@@ -1,7 +1,9 @@
-from django.urls import path
+from rest_framework import routers
 
-from .views import TestView
+from .views import CarShowRoomRegisterViewSet, DealerRegisterViewSet
 
-urlpatterns = [
-    path("", TestView.as_view()),  # It is made to see that django can see those urls
-]
+router = routers.DefaultRouter()
+router.register(r"register/showroom", CarShowRoomRegisterViewSet)
+router.register(r"register/dealer", DealerRegisterViewSet)
+
+urlpatterns = router.urls

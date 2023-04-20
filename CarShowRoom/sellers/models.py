@@ -1,4 +1,3 @@
-from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
 from django.db import models
 from django_countries.fields import CountryField
@@ -6,8 +5,8 @@ from django_countries.fields import CountryField
 from cars.models import Car, CarBrand
 from core.enums.carenums import PriceCategory
 from core.enums.moneyenums import MoneyCurrency
-from core.models import CarPriceCurrency
-from core.validation.validators import validate_phone, validate_positive
+from core.models import CarPriceCurrency, User
+from core.validation.validators import validate_positive
 
 
 class CarShowRoom(User):
@@ -23,9 +22,6 @@ class CarShowRoom(User):
         blank=True,
         related_name="car_showroom",
     )
-    phone_number = models.CharField(
-        max_length=20, null=True, blank=True, validators=[validate_phone]
-    )
     car_brands = models.ManyToManyField(
         CarBrand, through="ShowroomBrand", related_name="car_showrooms"
     )
@@ -33,7 +29,9 @@ class CarShowRoom(User):
         Car, through="ShowroomCar", related_name="car_showrooms"
     )
     price_category = models.CharField(
-        max_length=10, choices=PriceCategory.choices(), default=PriceCategory.MEDIUM.name
+        max_length=10,
+        choices=PriceCategory.choices(),
+        default=PriceCategory.MEDIUM.name,
     )
 
     def __str__(self):
@@ -42,9 +40,6 @@ class CarShowRoom(User):
 
 class Dealer(User):
     name = models.CharField(max_length=40, null=False, blank=False, unique=True)
-    phone_number = models.CharField(
-        max_length=20, null=True, blank=True, validators=[validate_phone]
-    )
     year_founded = models.IntegerField(
         validators=[
             MinValueValidator(
