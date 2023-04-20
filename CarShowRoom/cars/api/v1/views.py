@@ -10,6 +10,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
 from cars.api.serializers import CarBrandSerializer, CarSerializer
+from cars.api.permissions import IsDealerOrReadOnly
 from cars.models import Car, CarBrand
 
 
@@ -26,6 +27,7 @@ class CarBrandViewSet(
     serializer_class = CarBrandSerializer
     lookup_field = "slug"
     lookup_url_kwarg = "slug"
+    permission_classes = [IsDealerOrReadOnly]
 
 
 class CarViewSet(
@@ -39,6 +41,7 @@ class CarViewSet(
 
     queryset = Car.objects.filter(is_active=True)
     serializer_class = CarSerializer
+    permission_classes = [IsDealerOrReadOnly]
 
     def create(self, request, *args, **kwargs):
         try:
