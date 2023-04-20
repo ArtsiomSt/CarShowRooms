@@ -9,6 +9,8 @@ from CarShowRoom.settings import USER_CONFIRMATION_KEY, USER_CONFIRMATION_TIMEOU
 
 
 def send_verification_email(instance, topic: str, message_before_link: str, request):
+    """Function that creates and sends verification link to instances email"""
+
     token = uuid.uuid4().hex
     redis_key = USER_CONFIRMATION_KEY.format(token=token)
     cache.set(redis_key, {"user_id": instance.pk}, timeout=USER_CONFIRMATION_TIMEOUT)
