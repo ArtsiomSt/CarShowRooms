@@ -47,9 +47,9 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django_extensions",
     "debug_toolbar",
-    "core",
     "drf_yasg",
     "rest_framework",
+    "core.apps.CoreConfig",
     "sellers.apps.SellersConfig",
     "customers.apps.CustomersConfig",
     "cars.apps.CarsConfig",
@@ -196,21 +196,21 @@ EMAIL_PORT = 465
 EMAIL_USE_TLS = False
 EMAIL_USE_SSL = True
 
-EMAIL_HOST_USER = "akeonst@yandex.ru"
+EMAIL_HOST_USER = os.getenv("EMAIL_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIl_HOST_PASSWORD")
-DEFAULT_FROM_EMAIL = "akeonst@yandex.ru"
+DEFAULT_FROM_EMAIL = os.getenv("EMAIL_USER")
 
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://{}:{}/1".format(os.getenv("REDIS_HOST", "redis"), os.getenv("REDIS_PORT", "6379")),
+        "LOCATION": os.getenv("REDIS_HOST"),
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         },
     }
 }
 
-USER_CONFIRMATION_KEY = "user_confirmation_{token}"
+USER_CONFIRMATION_KEY = os.getenv("USER_CONFIRMATION_KEY")
 USER_CONFIRMATION_TIMEOUT = 300
 
 AUTH_USER_MODEL = "core.User"

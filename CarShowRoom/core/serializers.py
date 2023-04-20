@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 from sellers.models import Balance
 
-from .mixins import EmailVerificationMixin
+from .service import send_verification_email
 
 
 class BalanceSerializer(serializers.ModelSerializer):
@@ -13,19 +13,21 @@ class BalanceSerializer(serializers.ModelSerializer):
         fields = ("money_amount", "currency")
 
 
-class RegisterSerializer(EmailVerificationMixin, serializers.ModelSerializer):
+class RegisterSerializer(serializers.ModelSerializer):
     """This serializer implements registration with email verification for models"""
 
     balance = BalanceSerializer(read_only=True)
     password = serializers.CharField(
         max_length=100, write_only=True, validators=[validate_password]
     )
-    email = serializers.EmailField(required=True)
 
     def create(self, validated_data):
         validated_data["password"] = make_password(validated_data["password"])
         created_user = super().create(validated_data)
-        self.send_verification_email(
-            created_user, "Email verification", "To confirm your email use this link"
+        send_verification_email(
+            created_user,
+            "Email verification",
+            "To confirm your email use this link",
+            self.context["request"],
         )
         return created_user

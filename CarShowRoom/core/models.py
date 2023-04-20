@@ -27,8 +27,11 @@ class CarPriceCurrency(models.Model):
 
 
 class User(AbstractUser):
-    email = models.EmailField(blank=False, null=False)
+    email = models.EmailField(blank=False, null=False, unique=True)
     phone_number = models.CharField(
         max_length=20, blank=True, null=True, validators=[validate_phone]
     )
     is_email_verified = models.BooleanField(default=False)
+
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["username"]

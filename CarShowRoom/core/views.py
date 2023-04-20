@@ -7,8 +7,8 @@ from rest_framework.views import APIView
 
 from CarShowRoom.settings import USER_CONFIRMATION_KEY
 
-from .mixins import EmailVerificationMixin
 from .models import User
+from .service import send_verification_email
 
 
 class ConfirmEmailView(APIView):
@@ -32,13 +32,13 @@ class ConfirmEmailView(APIView):
         )
 
 
-class ManualConfirmEmailView(EmailVerificationMixin, APIView):
+class ManualConfirmEmailView(APIView):
     """View for manually sending a request for email verification"""
 
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        self.send_verification_email(
+        send_verification_email(
             request.user, "Email verification", "To confirm email use this", request
         )
         return Response(
