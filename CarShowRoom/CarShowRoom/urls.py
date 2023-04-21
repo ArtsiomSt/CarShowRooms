@@ -40,8 +40,10 @@ token_urls = (
             "verifyemail/<str:token>", ConfirmEmailView.as_view(), name="email_confirm"
         ),
         path(
-            "manualemailverify/", ManualConfirmEmailView.as_view(), name="manual_email_confirm"
-        )
+            "manualemailverify/",
+            ManualConfirmEmailView.as_view(),
+            name="manual_email_confirm",
+        ),
     ],
     "tokens",
 )

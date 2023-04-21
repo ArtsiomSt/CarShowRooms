@@ -34,7 +34,10 @@ class User(AbstractUser):
     )
     is_email_verified = models.BooleanField(default=False)
     user_type = models.CharField(
-        blank=False, null=False, choices=UserType.choices(), default=UserType.CUSTOMER.name
+        blank=False,
+        null=False,
+        choices=UserType.choices(),
+        default=UserType.CUSTOMER.name,
     )
 
     USERNAME_FIELD = "email"

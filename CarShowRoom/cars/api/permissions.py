@@ -6,7 +6,7 @@ class IsDealerOrReadOnly(BasePermission):
         if not request.user.is_authenticated:
             return False
         return bool(
-            request.user.user_type == "DEALER" and
-            request.user.is_email_verified or
-            request.method in SAFE_METHODS
+            request.user.user_type == "DEALER"
+            and request.user.is_email_verified
+            or request.method in SAFE_METHODS
         )
