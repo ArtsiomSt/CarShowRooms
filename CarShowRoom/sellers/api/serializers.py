@@ -6,6 +6,8 @@ from cars.models import Car, CarBrand
 from core.mixins import AddBalanceIfOwnerMixin
 from core.serializers import CarPriceCurrencySerializer, RegisterSerializer
 from sellers.models import CarShowRoom, Dealer, DealerCar, ShowroomBrand
+from django.db.utils import IntegrityError
+
 
 
 class CarShowRoomRegisterSerializer(RegisterSerializer):
@@ -58,6 +60,10 @@ class CarShowRoomSerializer(AddBalanceIfOwnerMixin, serializers.ModelSerializer)
 
     @staticmethod
     def update_car_brands_by_slugs(instance, car_brands_slugs):
+        """
+        This method implements changing ShowRoom's brands by adding new or removing odd ones,
+        Basically this method changes ShowRoom's brands to brands with slugs from car_brands_slugs
+        """
         chosen_car_brands = []
         for car_brand_slug in car_brands_slugs:
             try:
@@ -112,13 +118,21 @@ class DealerSerializer(AddBalanceIfOwnerMixin, serializers.ModelSerializer):
 
 
 class DealerCarSerializer(CarPriceCurrencySerializer):
+    """This serializer provides adding car to dealers, where dealer is taken from request"""
+
     def create(self, validated_data):
         request = self.context["request"]
         request_kwargs = request.parser_context["kwargs"]
         car_id = request_kwargs["car_id"]
-        validated_data["car"] = Car.objects.get(pk=car_id)
-        validated_data["dealer"] = Dealer.objects.get(pk=request.user.id)
-        return super().create(validated_data)
+        if not DealerCar.objects.filter(car=car_id, dealer=request.user.id):
+            try:
+                validated_data["car"] = Car.objects.get(pk=car_id)
+            except ObjectDoesNotExist:
+                raise ObjectDoesNotExist("there is no such car")
+            validated_data["dealer"] = Dealer.objects.get(pk=request.user.id)
+            return super().create(validated_data)
+        else:
+            raise IntegrityError("This dealer has already added this car to his list")
 
     class Meta:
         model = DealerCar
