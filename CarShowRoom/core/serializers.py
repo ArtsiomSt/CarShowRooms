@@ -37,7 +37,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         return created_user
 
 
-class CarPriceCurrencySerializer(serializers.ModelSerializer):
+class CarPriceCurrencySerializer(serializers.Serializer):
     car_price = serializers.DecimalField(
         max_digits=6, decimal_places=2, validators=[validate_positive]
     )

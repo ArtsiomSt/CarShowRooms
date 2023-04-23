@@ -117,7 +117,7 @@ class DealerSerializer(AddBalanceIfOwnerMixin, serializers.ModelSerializer):
         )
 
 
-class DealerCarSerializer(CarPriceCurrencySerializer):
+class DealerCarSerializer(serializers.ModelSerializer):
     """This serializer provides adding car to dealers, where dealer is taken from request"""
 
     def create(self, validated_data):
