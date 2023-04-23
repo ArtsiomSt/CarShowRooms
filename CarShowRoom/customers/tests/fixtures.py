@@ -1,4 +1,5 @@
 import pytest
+
 from customers.models import Customer
 
 

@@ -4,10 +4,9 @@ from rest_framework import serializers
 from cars.api.serializers import CarBrandSerializer, CarSerializer
 from cars.models import Car, CarBrand
 from core.mixins import AddBalanceIfOwnerMixin
-from core.serializers import CarPriceCurrencySerializer, RegisterSerializer
+from core.serializers import RegisterSerializer
 from sellers.models import CarShowRoom, Dealer, DealerCar, ShowroomBrand
 from django.db.utils import IntegrityError
-
 
 
 class CarShowRoomRegisterSerializer(RegisterSerializer):

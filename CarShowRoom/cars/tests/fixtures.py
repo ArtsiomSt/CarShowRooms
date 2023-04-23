@@ -1,9 +1,9 @@
-from rest_framework.test import APIClient
-from cars.models import CarBrand, Car
-from sellers.models import DealerCar
-from rest_framework_simplejwt.tokens import RefreshToken
 import pytest
+from rest_framework.test import APIClient
+from rest_framework_simplejwt.tokens import RefreshToken
 
+from cars.models import Car, CarBrand
+from sellers.models import DealerCar
 
 pytest_plugins = [
     "sellers.tests.fixtures",
@@ -51,3 +51,13 @@ def car(dealer_with_email, car_brand):
     )
     DealerCar.objects.create(dealer=dealer_with_email, car=car_instance, car_price=0)
     return car_instance
+
+
+@pytest.fixture
+def get_two_car_brands():
+    def two_car_brands():
+        car_brand_one = CarBrand(title="TestOne", slug="to", country="BY")
+        car_brand_two = CarBrand(title="TestTwo", slug="tw", country="US")
+        return CarBrand.objects.bulk_create([car_brand_one, car_brand_two])
+
+    return two_car_brands

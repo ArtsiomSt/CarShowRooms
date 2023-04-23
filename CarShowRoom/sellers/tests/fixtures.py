@@ -1,5 +1,6 @@
 import pytest
-from sellers.models import Dealer, CarShowRoom
+
+from sellers.models import CarShowRoom, Dealer
 
 
 @pytest.fixture
@@ -26,7 +27,7 @@ def dealer_without_email(password):
     return Dealer.objects.create(
         email="dealer_without_email@testexample.com",
         password=password,
-        username='dealer_no_email',
+        username="dealer_no_email",
         name="dealer_without_email_test",
         phone_number="+37529623542",
         year_founded=2023,
@@ -48,7 +49,7 @@ def showroom_with_email(password):
         margin=1,
         phone_number="+36482734",
         is_email_verified=True,
-        password=password
+        password=password,
     )
 
 
@@ -56,7 +57,7 @@ def showroom_with_email(password):
 def showroom_without_email():
     return CarShowRoom.objects.create(
         email="showroom_for_no_email_test@testpytest.com",
-        name="showroom_for_test",
+        name="showroom_for_test_no_email",
         username="showroom_no_email",
         country="RU",
         city="CityTest",
@@ -65,5 +66,5 @@ def showroom_without_email():
         margin=1,
         phone_number="+36482734",
         is_email_verified=False,
-        password=password
+        password=password,
     )
