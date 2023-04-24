@@ -1,7 +1,7 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.utils import IntegrityError
 from rest_framework import status
-from rest_framework.generics import CreateAPIView
+from rest_framework.decorators import action
 from rest_framework.mixins import (
     CreateModelMixin,
     ListModelMixin,
@@ -14,6 +14,7 @@ from rest_framework.viewsets import GenericViewSet
 from cars.api.permissions import IsDealerOrReadOnly
 from cars.api.serializers import CarBrandSerializer, CarSerializer
 from cars.models import Car, CarBrand
+from core.mixins import DynamicSerializerMixin
 from core.service import return_message
 from sellers.api.serializers import DealerCarSerializer
 from sellers.models import DealerCar
@@ -36,6 +37,7 @@ class CarBrandViewSet(
 
 
 class CarViewSet(
+    DynamicSerializerMixin,
     ListModelMixin,
     RetrieveModelMixin,
     CreateModelMixin,
@@ -45,8 +47,11 @@ class CarViewSet(
     """ViewSet for creating, retrieving, updating, getting all Car instances"""
 
     queryset = Car.objects.filter(is_active=True)
-    serializer_class = CarSerializer
     permission_classes = [IsDealerOrReadOnly]
+    serializer_mapping = {
+        ("get_dealer_car", "add_car_to_dealer", "delete_car_from_dealer"): DealerCarSerializer,
+        ("create", "update", "list", "retrieve"): CarSerializer,
+    }
 
     def create(self, request, *args, **kwargs):
         try:
@@ -68,21 +73,15 @@ class CarViewSet(
             )
         return response
 
-
-class AddCarForDealerView(CreateAPIView):
-    """View for adding and removing car from dealers list"""
-
-    queryset = DealerCar.objects.all()
-    serializer_class = DealerCarSerializer
-    permission_classes = [IsDealerOrReadOnly]
-
-    def get(self, request, car_id):
+    @action(detail=True, methods=["get"])
+    def get_dealer_car(self, request, *args, **kwargs):
         dealer_with_car_id = DealerCar.objects.filter(
-            dealer=request.user.id, car=car_id
+            dealer=request.user.id, car=kwargs["pk"]
         )
         return Response({"exists": True if dealer_with_car_id else False})
 
-    def create(self, request, *args, **kwargs):
+    @action(detail=True, methods=["post"])
+    def add_car_to_dealer(self, request, *args, **kwargs):
         try:
             result = super().create(request, *args, **kwargs)
         except IntegrityError as e:
@@ -91,9 +90,10 @@ class AddCarForDealerView(CreateAPIView):
             return return_message(str(e), status.HTTP_400_BAD_REQUEST)
         return result
 
-    def delete(self, request, car_id):
+    @action(detail=True, methods=["delete"])
+    def delete_car_from_dealer(self, request, *args, **kwargs):
         dealer_with_car_id = DealerCar.objects.filter(
-            dealer=request.user.id, car=car_id
+            dealer=request.user.id, car=kwargs["pk"]
         )
         if dealer_with_car_id:
             dealer_with_car_id.delete()

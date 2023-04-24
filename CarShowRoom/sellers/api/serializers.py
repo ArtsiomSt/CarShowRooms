@@ -133,7 +133,7 @@ class DealerCarSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         request = self.context["request"]
         request_kwargs = request.parser_context["kwargs"]
-        car_id = request_kwargs["car_id"]
+        car_id = request_kwargs["pk"]
         if not DealerCar.objects.filter(car=car_id, dealer=request.user.id):
             try:
                 validated_data["car"] = Car.objects.get(pk=car_id)
