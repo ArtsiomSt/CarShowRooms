@@ -2,8 +2,10 @@ import pytest
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from cars.models import Car, CarBrand
+from cars.models import CarBrand
 from sellers.models import DealerCar
+
+from .factory import CarFactory
 
 pytest_plugins = [
     "sellers.tests.fixtures",
@@ -13,11 +15,6 @@ pytest_plugins = [
 @pytest.fixture
 def client():
     return APIClient()
-
-
-@pytest.fixture
-def password():
-    return "zxcvbnm1234567890"
 
 
 @pytest.fixture
@@ -36,19 +33,7 @@ def car_brand():
 
 @pytest.fixture
 def car(dealer_with_email, car_brand):
-    car_instance = Car.objects.create(
-        title="string",
-        car_brand=car_brand,
-        doors_amount=3,
-        engine_power=100,
-        engine_type="FUEL",
-        year_produced=2010,
-        price_category="CHEAP",
-        length=2,
-        width=2,
-        height=2,
-        max_speed=300,
-    )
+    car_instance = CarFactory(car_brand=car_brand)
     DealerCar.objects.create(dealer=dealer_with_email, car=car_instance, car_price=0)
     return car_instance
 
