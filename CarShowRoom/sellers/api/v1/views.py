@@ -25,6 +25,16 @@ class CarShowRoomRegisterViewSet(CreateModelMixin, GenericViewSet):
     queryset = CarShowRoom.objects.filter(is_active=True)
     serializer_class = CarShowRoomRegisterSerializer
 
+    def create(self, request, *args, **kwargs):
+        try:
+            response = super().create(request, *args, **kwargs)
+        except ObjectDoesNotExist as e:
+            return Response(
+                {"car_brands_slugs": str(e)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        return response
+
 
 class DealerRegisterViewSet(CreateModelMixin, GenericViewSet):
     """ViewSet that provides registration for Dealer model"""

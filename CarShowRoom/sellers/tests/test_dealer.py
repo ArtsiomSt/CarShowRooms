@@ -33,6 +33,7 @@ def test_show_dealers_balance(
     """
     This tests checks if only dealer owner can see its balance
     """
+
     if "dealer" in user_instance:
         user_instance = request.getfixturevalue(user_instance)
         endpoint = f"/api/v1/sellers/dealer/{user_instance.id}/"

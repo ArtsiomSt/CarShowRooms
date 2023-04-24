@@ -8,7 +8,7 @@ def password():
     return "zxcvbnm1234567890"
 
 
-@pytest.fixture()
+@pytest.fixture
 def dealer_with_email(password):
     return Dealer.objects.create(
         email="dealer_with_email@testexample.com",
@@ -22,7 +22,7 @@ def dealer_with_email(password):
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def dealer_without_email(password):
     return Dealer.objects.create(
         email="dealer_without_email@testexample.com",
@@ -36,7 +36,7 @@ def dealer_without_email(password):
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def showroom_with_email(password):
     return CarShowRoom.objects.create(
         email="showroom_for_test@testpytest.com",
@@ -53,7 +53,7 @@ def showroom_with_email(password):
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def showroom_without_email():
     return CarShowRoom.objects.create(
         email="showroom_for_no_email_test@testpytest.com",

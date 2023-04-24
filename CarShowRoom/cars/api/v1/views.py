@@ -77,7 +77,9 @@ class AddCarForDealerView(CreateAPIView):
     permission_classes = [IsDealerOrReadOnly]
 
     def get(self, request, car_id):
-        dealer_with_car_id = DealerCar.objects.filter(dealer=request.user.id, car=car_id)
+        dealer_with_car_id = DealerCar.objects.filter(
+            dealer=request.user.id, car=car_id
+        )
         return Response({"exists": True if dealer_with_car_id else False})
 
     def create(self, request, *args, **kwargs):
@@ -90,8 +92,12 @@ class AddCarForDealerView(CreateAPIView):
         return result
 
     def delete(self, request, car_id):
-        dealer_with_car_id = DealerCar.objects.filter(dealer=request.user.id, car=car_id)
+        dealer_with_car_id = DealerCar.objects.filter(
+            dealer=request.user.id, car=car_id
+        )
         if dealer_with_car_id:
             dealer_with_car_id.delete()
             return return_message("Car has been successfully deleted from your list")
-        return return_message("there is no such car in your list", status.HTTP_400_BAD_REQUEST)
+        return return_message(
+            "there is no such car in your list", status.HTTP_400_BAD_REQUEST
+        )

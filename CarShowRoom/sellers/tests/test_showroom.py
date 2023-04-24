@@ -36,6 +36,7 @@ def test_showroom_update(
     This tests checks that only showroom owner can change information about itself
     Also it checks the correct work of changing showroom's preferences in CarBrands
     """
+
     user_instance = request.getfixturevalue(user_instance)
     car_brand_one, car_brand_two = get_two_car_brands()
     endpoint = f"/api/v1/sellers/showroom/{showroom_with_email.id}/"
@@ -85,8 +86,9 @@ def test_show_showrooms_balance(
     request,
 ):
     """
-    This tests checks if only showroom owner can see its balance
+    This test checks if only showroom owner can see its balance
     """
+
     if "showroom" in user_instance:
         user_instance = request.getfixturevalue(user_instance)
         endpoint = f"/api/v1/sellers/showroom/{user_instance.id}/"
@@ -103,3 +105,48 @@ def test_show_showrooms_balance(
         assert "balance" in response.data.keys()
     else:
         assert "balance" not in response.data.keys()
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "status_code, add_car_brands",
+    [(201, "Right"), (400, "Without"), (400, "NotExists")],
+)
+def test_showroom_registration_with_brands(
+    status_code,
+    add_car_brands,
+    get_token,
+    get_two_car_brands,
+    client,
+):
+    """Test creating ShowRoom instance with different cases of carbrands slugs list"""
+
+    endpoint = "/api/v1/sellers/register/showroom/"
+    car_brand_one, car_brand_two = get_two_car_brands()
+    payload = {
+        "username": "showroom8",
+        "password": "zxcvbnm1234567890",
+        "email": "test_email_for_showroom@f3jfjdidl.com",
+        "name": "sree",
+        "country": "RU",
+        "address": "string",
+        "margin": 0,
+        "phone_number": "+3757686",
+        "price_category": "CHEAP",
+        "city": "yes",
+    }
+    if add_car_brands == "Right":
+        payload["car_brands_slugs"] = [car_brand_one.slug, car_brand_two.slug]
+    elif add_car_brands == "NotExists":
+        payload["car_brands_slugs"] = [
+            car_brand_one.slug,
+            car_brand_two.slug + "thatnotexists",
+        ]
+    response = client.post(endpoint, payload, format="json")
+    assert response.status_code == status_code
+    if response.status_code == 201:
+        payload["car_brands"] = [
+            CarBrandSerializer(car_brand_one).data,
+            CarBrandSerializer(car_brand_two).data,
+        ]
+        assert payload["car_brands"] == response.data["car_brands"]

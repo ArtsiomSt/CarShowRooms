@@ -1,7 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
-from rest_framework import serializers
 
-from cars.api.serializers import CarBrandSerializer
 from cars.models import CarBrand
 from sellers.models import ShowroomBrand
 
@@ -10,6 +8,7 @@ class ChangeShowRoomBrandsMixin:
     """
     Mixin that provides changing showrooms preferences in car brands by the list of slugs.
     """
+
     @staticmethod
     def update_car_brands_by_slugs(instance, car_brands_slugs):
         """

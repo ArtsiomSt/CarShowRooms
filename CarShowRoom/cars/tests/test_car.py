@@ -25,6 +25,11 @@ pytest_plugins = [
     ],
 )
 def test_create_car(user_instance, status_code, get_token, car_brand, client, request):
+    """
+    This test check the process of creating car instance
+     with adding this car to dealer's list
+     """
+
     user_instance = request.getfixturevalue(user_instance)
     endpoint = "/api/v1/cars/car/"
     auth_token = get_token(user_instance)
@@ -75,6 +80,12 @@ def test_create_car(user_instance, status_code, get_token, car_brand, client, re
 def test_update_car(
     user_instance, status_code, get_token, car_brand, car, client, request
 ):
+    """
+    This test checks the process of updating car by dealer.
+    Also it controls that script changes information about
+    car price in DealerCar model. Also it checks exception
+    when we are trying to change cars brand to brand that not exists.
+    """
     user_instance = request.getfixturevalue(user_instance)
     endpoint = f"/api/v1/cars/car/{car.id}/"
     auth_token = get_token(user_instance)

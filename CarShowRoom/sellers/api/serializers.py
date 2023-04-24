@@ -1,19 +1,20 @@
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.utils import IntegrityError
 from rest_framework import serializers
 
 from cars.api.serializers import CarBrandSerializer, CarSerializer
 from cars.models import Car
 from core.mixins import AddBalanceIfOwnerMixin
 from core.serializers import RegisterSerializer
-from sellers.models import CarShowRoom, Dealer, DealerCar
 from sellers.mixins import ChangeShowRoomBrandsMixin
-from django.db.utils import IntegrityError
+from sellers.models import CarShowRoom, Dealer, DealerCar, ShowroomCar
 
 
 class CarShowRoomRegisterSerializer(ChangeShowRoomBrandsMixin, RegisterSerializer):
     """
     This serializer is used in registration process for showrooms.
-    It also provides adding CarBrand preferences while creating instance.
+    It also provides adding CarBrand preferences while creating instance
+    and finds cars that fit showroom's preferences.
     """
 
     car_brands = CarBrandSerializer(many=True, read_only=True)
@@ -25,6 +26,13 @@ class CarShowRoomRegisterSerializer(ChangeShowRoomBrandsMixin, RegisterSerialize
         car_brands_slugs = validated_data.pop("car_brands_slugs")
         instance = super().create(validated_data)
         self.update_car_brands_by_slugs(instance, car_brands_slugs)
+        cars_that_fit_showroom = Car.objects.filter(
+            car_brand__slug__in=car_brands_slugs, price_category=instance.price_category
+        )
+        showroomcar_to_create = []
+        for car in cars_that_fit_showroom:
+            showroomcar_to_create.append(ShowroomCar(car_showroom=instance, car=car))
+        ShowroomCar.objects.bulk_create(showroomcar_to_create)
         return instance
 
     class Meta:
@@ -63,8 +71,13 @@ class DealerRegisterSerializer(RegisterSerializer):
         )
 
 
-class CarShowRoomSerializer(AddBalanceIfOwnerMixin, ChangeShowRoomBrandsMixin, serializers.ModelSerializer):
-    """This serializer is used to provide different actions with showroom instances after registration"""
+class CarShowRoomSerializer(
+    AddBalanceIfOwnerMixin, ChangeShowRoomBrandsMixin, serializers.ModelSerializer
+):
+    """
+    This serializer is used to provide different actions
+    with showroom instances after registration
+    """
 
     car_brands = CarBrandSerializer(many=True, read_only=True)
     car_brands_slugs = serializers.ListSerializer(
@@ -95,7 +108,10 @@ class CarShowRoomSerializer(AddBalanceIfOwnerMixin, ChangeShowRoomBrandsMixin, s
 
 
 class DealerSerializer(AddBalanceIfOwnerMixin, serializers.ModelSerializer):
-    """This serializer is used to provide different actions with dealer instances after registration"""
+    """
+    This serializer is used to provide different actions
+    with dealer instances after registration
+    """
 
     car_list = CarSerializer(many=True, read_only=True)
 
