@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 from .enums.moneyenums import MoneyCurrency
+from .enums.userenums import UserType
 from .validation.validators import validate_phone, validate_positive
 
 
@@ -32,6 +33,12 @@ class User(AbstractUser):
         max_length=20, blank=True, null=True, validators=[validate_phone]
     )
     is_email_verified = models.BooleanField(default=False)
+    user_type = models.CharField(
+        blank=False,
+        null=False,
+        choices=UserType.choices(),
+        default=UserType.CUSTOMER.name,
+    )
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]

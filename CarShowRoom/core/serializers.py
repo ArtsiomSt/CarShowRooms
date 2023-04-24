@@ -4,7 +4,9 @@ from rest_framework import serializers
 
 from sellers.models import Balance
 
+from .enums.moneyenums import MoneyCurrency
 from .service import send_verification_email
+from .validation.validators import validate_positive
 
 
 class BalanceSerializer(serializers.ModelSerializer):
@@ -22,6 +24,8 @@ class RegisterSerializer(serializers.ModelSerializer):
     )
 
     def create(self, validated_data):
+        if hasattr(self, "Meta"):
+            validated_data["user_type"] = self.Meta.model.__name__.upper()
         validated_data["password"] = make_password(validated_data["password"])
         created_user = super().create(validated_data)
         send_verification_email(
@@ -31,3 +35,10 @@ class RegisterSerializer(serializers.ModelSerializer):
             self.context["request"],
         )
         return created_user
+
+
+class CarPriceCurrencySerializer(serializers.Serializer):
+    car_price = serializers.DecimalField(
+        max_digits=6, decimal_places=2, validators=[validate_positive]
+    )
+    currency = serializers.ChoiceField(choices=MoneyCurrency.choices())

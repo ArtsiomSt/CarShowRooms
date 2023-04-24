@@ -4,6 +4,8 @@ import uuid
 from django.core.cache import cache
 from django.core.mail import send_mail
 from rest_framework.reverse import reverse_lazy
+from rest_framework import status
+from rest_framework.response import Response
 
 from CarShowRoom.settings import USER_CONFIRMATION_KEY, USER_CONFIRMATION_TIMEOUT
 
@@ -22,4 +24,13 @@ def send_verification_email(instance, topic: str, message_before_link: str, requ
         f"{message_before_link}\n{confirm_link}",
         os.getenv("EMAIL_USER"),
         [instance.email],
+    )
+
+
+def return_message(message_text: str, status_code: int = status.HTTP_200_OK) -> Response:
+    """Function that make it easier to return a response with single message field"""
+
+    return Response(
+        {"message": message_text},
+        status=status_code,
     )

@@ -18,6 +18,8 @@ django-extensions = "*"
 flake8-isort = "*"
 djangorestframework-simplejwt = "*"
 django-redis = "*"
+pytest-django = "*"
+pytest-factoryboy = "*"
 
 [dev-packages]
 
