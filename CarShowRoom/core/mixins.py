@@ -1,5 +1,3 @@
-from inspect import stack
-
 from core.serializers import BalanceSerializer
 
 
@@ -17,16 +15,13 @@ class AddBalanceIfOwnerMixin:
 
 
 class DynamicSerializerMixin:
-    serializer_mapping = None
+    serializer_mapping = {}
 
     def get_serializer_class(self):
-        assert self.serializer_mapping is not None
-        for methods, serializer_class in self.serializer_mapping.items():
-            called_from = stack()[1].function
-            if called_from != "get_serializer":
-                raise ValueError("get_serializer_class should be called from get_serializer")
-            for depth in range(len(stack())):
-                function_of_that_level = stack()[depth].function
-                if function_of_that_level in methods:
-                    return serializer_class
-        raise ValueError("Bad serializer mapping")
+        for action, serializer in self.serializer_mapping.items():
+            if self.action == action or self.action in action:
+                return serializer
+        assert (
+            self.serializer_class is not None
+        ), "You should specify default serializer or provide mapping for all methods"
+        return self.serializer_class

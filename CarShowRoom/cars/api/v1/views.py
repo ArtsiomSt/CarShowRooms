@@ -48,6 +48,7 @@ class CarViewSet(
 
     queryset = Car.objects.filter(is_active=True)
     permission_classes = [IsDealerOrReadOnly]
+    serializer_class = CarSerializer
     serializer_mapping = {
         ("get_dealer_car", "add_car_to_dealer", "delete_car_from_dealer"): DealerCarSerializer,
         ("create", "update", "list", "retrieve"): CarSerializer,

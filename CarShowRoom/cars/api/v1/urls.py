@@ -11,7 +11,7 @@ urlpatterns = router.urls
 
 urlpatterns += [
     path(
-        "car/<int:pk>/add/",
+        "car/<int:pk>/managedealercars/",
         CarViewSet.as_view(
             {
                 "get": "get_dealer_car",
