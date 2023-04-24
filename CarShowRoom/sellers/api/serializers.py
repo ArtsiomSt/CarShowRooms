@@ -2,14 +2,31 @@ from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 
 from cars.api.serializers import CarBrandSerializer, CarSerializer
-from cars.models import Car, CarBrand
+from cars.models import Car
 from core.mixins import AddBalanceIfOwnerMixin
 from core.serializers import RegisterSerializer
-from sellers.models import CarShowRoom, Dealer, DealerCar, ShowroomBrand
+from sellers.models import CarShowRoom, Dealer, DealerCar
+from sellers.mixins import ChangeShowRoomBrandsMixin
 from django.db.utils import IntegrityError
 
 
-class CarShowRoomRegisterSerializer(RegisterSerializer):
+class CarShowRoomRegisterSerializer(ChangeShowRoomBrandsMixin, RegisterSerializer):
+    """
+    This serializer is used in registration process for showrooms.
+    It also provides adding CarBrand preferences while creating instance.
+    """
+
+    car_brands = CarBrandSerializer(many=True, read_only=True)
+    car_brands_slugs = serializers.ListSerializer(
+        write_only=True, child=serializers.SlugField(max_length=30)
+    )
+
+    def create(self, validated_data):
+        car_brands_slugs = validated_data.pop("car_brands_slugs")
+        instance = super().create(validated_data)
+        self.update_car_brands_by_slugs(instance, car_brands_slugs)
+        return instance
+
     class Meta:
         model = CarShowRoom
         fields = (
@@ -26,6 +43,7 @@ class CarShowRoomRegisterSerializer(RegisterSerializer):
             "phone_number",
             "car_brands",
             "price_category",
+            "car_brands_slugs",
         )
         read_only_fields = ("id",)
 
@@ -45,7 +63,9 @@ class DealerRegisterSerializer(RegisterSerializer):
         )
 
 
-class CarShowRoomSerializer(AddBalanceIfOwnerMixin, serializers.ModelSerializer):
+class CarShowRoomSerializer(AddBalanceIfOwnerMixin, ChangeShowRoomBrandsMixin, serializers.ModelSerializer):
+    """This serializer is used to provide different actions with showroom instances after registration"""
+
     car_brands = CarBrandSerializer(many=True, read_only=True)
     car_brands_slugs = serializers.ListSerializer(
         write_only=True, child=serializers.SlugField(max_length=30)
@@ -56,33 +76,6 @@ class CarShowRoomSerializer(AddBalanceIfOwnerMixin, serializers.ModelSerializer)
             car_brands_slugs = validated_data.pop("car_brands_slugs")
             self.update_car_brands_by_slugs(instance, car_brands_slugs)
         return super().update(instance, validated_data)
-
-    @staticmethod
-    def update_car_brands_by_slugs(instance, car_brands_slugs):
-        """
-        This method implements changing ShowRoom's brands by adding new or removing odd ones,
-        Basically this method changes ShowRoom's brands to brands with slugs from car_brands_slugs
-        """
-        chosen_car_brands = []
-        for car_brand_slug in car_brands_slugs:
-            try:
-                chosen_car_brands.append(CarBrand.objects.get(slug=car_brand_slug))
-            except ObjectDoesNotExist:
-                raise ObjectDoesNotExist(
-                    f"CarBrand with slug {car_brand_slug} does not exist"
-                )
-        ShowroomBrand.objects.filter(car_showroom=instance).exclude(
-            car_brand__slug__in=car_brands_slugs
-        ).delete()
-        showrooms_brands = instance.car_brands.all()
-        car_brands_to_create = []
-        for car_brand in chosen_car_brands:
-            if car_brand not in showrooms_brands:
-                car_brands_to_create.append(
-                    ShowroomBrand(car_showroom=instance, car_brand=car_brand)
-                )
-        if car_brands_to_create:
-            ShowroomBrand.objects.bulk_create(car_brands_to_create)
 
     class Meta:
         model = CarShowRoom
@@ -102,6 +95,8 @@ class CarShowRoomSerializer(AddBalanceIfOwnerMixin, serializers.ModelSerializer)
 
 
 class DealerSerializer(AddBalanceIfOwnerMixin, serializers.ModelSerializer):
+    """This serializer is used to provide different actions with dealer instances after registration"""
+
     car_list = CarSerializer(many=True, read_only=True)
 
     class Meta:
