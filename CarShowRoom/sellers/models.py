@@ -88,10 +88,10 @@ class DealerCar(CarPriceCurrency):
         return f"{self.dealer} supplies {self.car}"
 
 
-class ShowroomCar(CarPriceCurrency):
+class ShowroomCar(models.Model):
     car_showroom = models.ForeignKey(CarShowRoom, on_delete=models.CASCADE)
     car = models.ForeignKey(Car, on_delete=models.CASCADE)
-    dealer = models.ForeignKey(Dealer, on_delete=models.CASCADE)
+    dealer = models.ForeignKey(Dealer, on_delete=models.CASCADE, null=True, blank=True)
     car_amount = models.IntegerField(default=1)
     car_sold = models.IntegerField(default=0)
 

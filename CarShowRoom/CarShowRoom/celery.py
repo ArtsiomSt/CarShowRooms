@@ -17,3 +17,10 @@ app.conf.beat_schedule = {
         'schedule': timedelta(seconds=6)
     }
 }
+
+app.conf.beat_schedule = {
+    'update-showrooms-car-dealers': {
+        'task': 'sellers.tasks.update_dealer_showroom_relations',
+        'schedule': crontab(hour='*/1')
+    }
+}

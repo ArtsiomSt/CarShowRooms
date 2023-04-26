@@ -13,12 +13,12 @@ class CustomerRegisterViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
 
 
 from rest_framework.views import APIView
-from sellers.tasks import print_something
+from sellers.tasks import print_something, update_dealer_showroom_relations
 from rest_framework.response import Response
 
 
 class CeleryView(APIView):
     def get(self, request):
         print('test_method')
-        print_something.delay()
+        update_dealer_showroom_relations.delay()
         return Response({"answer": "success"})
