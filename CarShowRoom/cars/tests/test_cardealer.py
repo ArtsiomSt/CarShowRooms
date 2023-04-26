@@ -24,7 +24,7 @@ pytest_plugins = [
 def test_cardealer_add_remove(
     user_instance, status_code, get_token, car, client, request
 ):
-    endpoint = f"/api/v1/cars/car/{car.id}/managedealercars/"
+    endpoint = f"/api/v1/cars/car/{car.id}/dealercar/"
     payload = {"car_price": 1000, "currency": "RUB"}
     user_instance = request.getfixturevalue(user_instance)
     auth_token = get_token(user_instance)

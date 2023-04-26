@@ -20,6 +20,7 @@ djangorestframework-simplejwt = "*"
 django-redis = "*"
 pytest-django = "*"
 pytest-factoryboy = "*"
+celery = "*"
 
 [dev-packages]
 

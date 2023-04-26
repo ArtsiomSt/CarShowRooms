@@ -10,3 +10,15 @@ class CustomerRegisterViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
 
     queryset = Customer.objects.filter(is_active=True)
     serializer_class = CustomerSerializer
+
+
+from rest_framework.views import APIView
+from sellers.tasks import print_something
+from rest_framework.response import Response
+
+
+class CeleryView(APIView):
+    def get(self, request):
+        print('test_method')
+        print_something.delay()
+        return Response({"answer": "success"})
