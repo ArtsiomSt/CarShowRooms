@@ -137,3 +137,9 @@ class DiscountCar(models.Model):
     car = models.ForeignKey(Car, on_delete=models.CASCADE)
     discount = models.ForeignKey(Discount, on_delete=models.CASCADE)
     sold_with_discount = models.IntegerField(default=0, validators=[validate_positive])
+    new_car_price = models.DecimalField(
+        max_digits=7, decimal_places=2, null=True, blank=True
+    )
+    currency = models.CharField(
+        max_length=30, choices=MoneyCurrency.choices(), default=MoneyCurrency.USD.name
+    )
