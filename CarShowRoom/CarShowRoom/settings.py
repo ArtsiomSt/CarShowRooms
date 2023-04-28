@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 import os
+import socket
 from datetime import timedelta
 from pathlib import Path
 
@@ -216,3 +217,19 @@ USER_CONFIRMATION_KEY = os.getenv("USER_CONFIRMATION_KEY")
 USER_CONFIRMATION_TIMEOUT = 300
 
 AUTH_USER_MODEL = "core.User"
+
+
+CELERY_BROKER_URL = os.getenv("REDIS_HOST").replace("/1", "/0")
+CELERY_BROKER_TRANSPORT_OPTIONS = {"visibility_timeout": 3600}
+CELERY_RESULT_BACKEND = os.getenv("REDIS_HOST").replace("/1", "/0")
+CELERY_ACCEPT_CONTENT = ["application/json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+
+
+#  Those settings are used to activate django-debug-toolbar
+#  It is not enough just to put 0.0.0.0 to internal ports
+#  because docker has its own ip inside of it
+
+hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
+INTERNAL_IPS += [".".join(ip.split(".")[:-1] + ["1"]) for ip in ips]

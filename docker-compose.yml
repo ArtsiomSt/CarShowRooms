@@ -28,6 +28,26 @@ services:
     ports:
        - "6379:6379"
     restart: always
+  celery:
+    build: CarShowRoom
+    command: celery -A CarShowRoom worker -l info
+    volumes:
+      - ./CarShowRoom:/app
+    env_file:
+      - env/db.env
+      - env/backends.env
+    depends_on:
+      - redis
+  celery-beat:
+    build: CarShowRoom
+    command: celery -A CarShowRoom beat -l info
+    volumes:
+      - ./CarShowRoom:/app
+    env_file:
+      - env/db.env
+      - env/backends.env
+    depends_on:
+      - redis
 
 volumes:
   postgres_data:

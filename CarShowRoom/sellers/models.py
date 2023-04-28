@@ -5,8 +5,8 @@ from django_countries.fields import CountryField
 from cars.models import Car, CarBrand
 from core.enums.carenums import PriceCategory
 from core.enums.moneyenums import MoneyCurrency
-from core.models import CarPriceCurrency, User
-from core.validation.validators import validate_positive
+from core.models import CarPriceCurrency, User, DefaultTimeFields
+from core.validation.validators import validate_positive, validate_discount
 
 
 class CarShowRoom(User):
@@ -88,10 +88,10 @@ class DealerCar(CarPriceCurrency):
         return f"{self.dealer} supplies {self.car}"
 
 
-class ShowroomCar(CarPriceCurrency):
+class ShowroomCar(models.Model):
     car_showroom = models.ForeignKey(CarShowRoom, on_delete=models.CASCADE)
     car = models.ForeignKey(Car, on_delete=models.CASCADE)
-    dealer = models.ForeignKey(Dealer, on_delete=models.CASCADE)
+    dealer = models.ForeignKey(Dealer, on_delete=models.CASCADE, null=True, blank=True)
     car_amount = models.IntegerField(default=1)
     car_sold = models.IntegerField(default=0)
 
@@ -107,3 +107,39 @@ class DealerShowroom(models.Model):
 
     def __str__(self):
         return f"{self.dealer} cooperates with {self.car_showroom}"
+
+
+class Discount(DefaultTimeFields):
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField()
+    car_showroom = models.ForeignKey(
+        CarShowRoom,
+        on_delete=models.CASCADE,
+        related_name="discounts",
+        null=True,
+        blank=True,
+    )
+    dealer = models.ForeignKey(
+        Dealer,
+        on_delete=models.CASCADE,
+        related_name="discounts",
+        null=True,
+        blank=True,
+    )
+    discount_percent = models.IntegerField(validators=[validate_discount])
+    cars = models.ManyToManyField(Car, through="DiscountCar", related_name="discounts")
+
+    def __str__(self):
+        return f"{self.car_showroom if self.car_showroom else self.dealer} - discount"
+
+
+class DiscountCar(models.Model):
+    car = models.ForeignKey(Car, on_delete=models.CASCADE)
+    discount = models.ForeignKey(Discount, on_delete=models.CASCADE)
+    sold_with_discount = models.IntegerField(default=0, validators=[validate_positive])
+    new_car_price = models.DecimalField(
+        max_digits=7, decimal_places=2, null=True, blank=True
+    )
+    currency = models.CharField(
+        max_length=30, choices=MoneyCurrency.choices(), default=MoneyCurrency.USD.name
+    )

@@ -8,6 +8,7 @@ from core.mixins import AddBalanceIfOwnerMixin
 from core.serializers import RegisterSerializer
 from sellers.mixins import ChangeShowRoomBrandsMixin
 from sellers.models import CarShowRoom, Dealer, DealerCar, ShowroomCar
+from sellers.tasks import update_cars_suppliers
 
 
 class CarShowRoomRegisterSerializer(ChangeShowRoomBrandsMixin, RegisterSerializer):
@@ -33,6 +34,7 @@ class CarShowRoomRegisterSerializer(ChangeShowRoomBrandsMixin, RegisterSerialize
         for car in cars_that_fit_showroom:
             showroomcar_to_create.append(ShowroomCar(car_showroom=instance, car=car))
         ShowroomCar.objects.bulk_create(showroomcar_to_create)
+        update_cars_suppliers(instance)
         return instance
 
     class Meta:
