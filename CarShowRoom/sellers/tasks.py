@@ -7,7 +7,7 @@ from django.utils import timezone
 
 from CarShowRoom.celery import app
 from cars.models import Car
-from sellers.models import CarShowRoom, DealerCar, ShowroomCar, Dealer
+from sellers.models import CarShowRoom, DealerCar, ShowroomCar, Dealer, Balance
 
 
 @app.task
@@ -22,7 +22,7 @@ def update_dealer_showroom_relations():
         update_cars_suppliers(showroom)
 
 
-def update_cars_suppliers(showroom):
+def update_cars_suppliers(showroom: CarShowRoom):
     """This function checks if there are better dealers for showroom's cars"""
 
     for showrooms_car in ShowroomCar.objects.filter(
@@ -105,7 +105,7 @@ def supply_cars_from_dealers():
             )
 
 
-def update_showrooms_car(showroom):
+def update_showrooms_car(showroom: CarShowRoom):
     """
     This checks if there are new cars that fit showroom's
     requirements and then adds them to showroom
@@ -136,10 +136,12 @@ def supply_cars_from_dealer(
         money_amount = price_for_one_car * car_amount
         if showroom.balance.money_amount < money_amount:
             return  # process if showroom does not have enough money
-        showroom.balance.money_amount -= money_amount
-        dealer.balance.money_amount += money_amount
+        Balance.objects.filter(pk=showroom.balance.pk).update(
+            money_amount=F("money_amount") - money_amount, last_spent=timezone.now()
+        )
+        Balance.objects.filter(pk=dealer.balance.pk).update(
+            money_amount=F("money_amount") + money_amount, last_deposit=timezone.now()
+        )
         ShowroomCar.objects.filter(car_showroom=showroom, car=car).update(
             car_amount=F("car_amount") + car_amount
         )
-        showroom.balance.save()
-        dealer.balance.save()

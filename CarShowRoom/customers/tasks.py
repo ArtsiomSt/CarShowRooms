@@ -6,7 +6,7 @@ from django.db import transaction
 from django.utils import timezone
 
 from customers.models import Offer, TransactionHistory
-from sellers.models import ShowroomCar, DealerCar, DiscountCar
+from sellers.models import ShowroomCar, DealerCar, DiscountCar, Balance, CarShowRoom
 
 
 @app.task
@@ -33,7 +33,7 @@ def process_offers():
             continue  # process if there is no such currently available
 
 
-def get_car_price_from_showroomcar(showroom_car):
+def get_car_price_from_showroomcar(showroom_car: ShowroomCar):
     """This function finds the best offer from showroom about this car"""
 
     dealers_offer = DealerCar.objects.get(
@@ -43,7 +43,7 @@ def get_car_price_from_showroomcar(showroom_car):
         car=showroom_car.car,
         discount__dealer=None,
         discount__car_showroom=showroom_car.car_showroom,
-        discount__end_date__gt=timezone.now()
+        discount__end_date__gt=timezone.now(),
     ).select_related("discount")
     if discounts_from_showroom:
         best_discount = max(
@@ -62,21 +62,21 @@ def get_car_price_from_showroomcar(showroom_car):
     )
 
 
-def commit_offer(offer, showroom, price):
+def commit_offer(offer: Offer, showroom: CarShowRoom, price: Decimal):
     with transaction.atomic():
         if offer.made_by_customer.balance.money_amount < price:
-            raise ValueError("Customer does not have enough money")
-        offer.made_by_customer.balance.money_amount = F("money_amount") - price
-        offer.made_by_customer.balance.last_spent = timezone.now()
-        showroom.balance.money_amount = F("money_amount") + price
-        showroom.balance.last_deposit = timezone.now()
+            return  # Process if customer does not have enough money
+        Balance.objects.filter(pk=offer.made_by_customer.balance.pk).update(
+            money_amount=F("money_amount") - price, last_spent=timezone.now()
+        )
+        Balance.objects.filter(pk=showroom.balance.pk).update(
+            money_amount=F("money_amount") + price, last_deposit=timezone.now()
+        )
         ShowroomCar.objects.filter(car_showroom=showroom, car=offer.car).update(
             car_amount=F("car_amount") - 1, car_sold=F("car_sold") + 1
         )
         offer.is_processed = True
         offer.save()
-        offer.made_by_customer.balance.save()
-        showroom.balance.save()
         TransactionHistory.objects.create(
             made_by_customer=offer.made_by_customer,
             car=offer.car,
