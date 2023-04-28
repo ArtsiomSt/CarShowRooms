@@ -10,12 +10,6 @@ from cars.models import Car
 from sellers.models import CarShowRoom, DealerCar, ShowroomCar, Dealer
 
 
-@app.task  # I need this one to test different options in celery
-def print_something():
-    print("something from celery")
-    print(CarShowRoom.objects.all())
-
-
 @app.task
 def update_dealer_showroom_relations():
     """
@@ -28,7 +22,45 @@ def update_dealer_showroom_relations():
         update_cars_suppliers(showroom)
 
 
+def update_cars_suppliers(showroom):
+    """This function checks if there are better dealers for showroom's cars"""
+
+    for showrooms_car in ShowroomCar.objects.filter(
+        car_showroom=showroom
+    ).select_related("car_showroom", "car", "dealer"):
+        update_car_supplier(showrooms_car)
+
+
+def update_car_supplier(showrooms_car: ShowroomCar):
+    """This function checks if there are better dealers for showroom's car"""
+
+    try:
+        current_dealers_offer = DealerCar.objects.get(
+            car=showrooms_car.car, dealer=showrooms_car.dealer
+        )
+    except ObjectDoesNotExist:
+        current_dealers_offer = None
+    available_offer = DealerCar.objects.filter(car=showrooms_car.car).select_related(
+        "dealer"
+    )
+    if available_offer:
+        min_price_offer = min(available_offer, key=lambda offer: offer.car_price)
+    else:
+        return  # process if there is no active dealers for this car
+    if current_dealers_offer is not None:
+        if min_price_offer.car_price < current_dealers_offer.car_price:
+            showrooms_car.dealer = min_price_offer.dealer
+    else:
+        showrooms_car.dealer = min_price_offer.dealer
+    showrooms_car.save()
+
+
+@app.task
 def supply_cars_from_dealers():
+    """
+    This task buys cars from dealers for showrooms
+    """
+
     target_amount = 10
     showrooms = CarShowRoom.objects.all().select_related("balance")
     for showroom in showrooms:
@@ -39,10 +71,10 @@ def supply_cars_from_dealers():
             .order_by("car_sold")
         ):
             if showrooms_car.dealer is None:
-                continue
+                continue  # process if showroom do not have dealer for this car
             discounts_on_this_car = showrooms_car.car.discountcar_set.filter(
                 Q(discount__car_showroom=None)
-                & Q(discount__end_date__lt=timezone.now())
+                & Q(discount__end_date__gt=timezone.now())
                 & ~Q(discount__dealer=None)
             ).select_related("discount", "discount__dealer")
             current_dealers_offer = DealerCar.objects.get(
@@ -74,6 +106,11 @@ def supply_cars_from_dealers():
 
 
 def update_showrooms_car(showroom):
+    """
+    This checks if there are new cars that fit showroom's
+    requirements and then adds them to showroom
+    """
+
     cars_that_fit_showroom = Car.objects.filter(
         Q(car_brand__in=showroom.car_brands.all())
         & Q(price_category=showroom.price_category)
@@ -93,10 +130,12 @@ def supply_cars_from_dealer(
     price_for_one_car: Decimal,
     car_amount: int,
 ):
+    """This function makes a transaction between showroom and dealer"""
+
     with transaction.atomic():
         money_amount = price_for_one_car * car_amount
         if showroom.balance.money_amount < money_amount:
-            return
+            return  # process if showroom does not have enough money
         showroom.balance.money_amount -= money_amount
         dealer.balance.money_amount += money_amount
         ShowroomCar.objects.filter(car_showroom=showroom, car=car).update(
@@ -104,33 +143,3 @@ def supply_cars_from_dealer(
         )
         showroom.balance.save()
         dealer.balance.save()
-
-
-def update_cars_suppliers(showroom):
-    for showrooms_car in ShowroomCar.objects.filter(
-        car_showroom=showroom
-    ).select_related("car_showroom", "car", "dealer"):
-        update_car_supplier(showrooms_car)
-
-
-def update_car_supplier(showrooms_car: ShowroomCar):
-    try:
-        current_dealers_offer = DealerCar.objects.get(
-            car=showrooms_car.car, dealer=showrooms_car.dealer
-        )
-    except ObjectDoesNotExist:
-        current_dealers_offer = None
-    available_offer = DealerCar.objects.filter(car=showrooms_car.car).select_related(
-        "dealer"
-    )
-    if available_offer:
-        min_price_offer = min(available_offer, key=lambda offer: offer.car_price)
-    else:
-        return
-    if current_dealers_offer is not None:
-        if min_price_offer.car_price < current_dealers_offer.car_price:
-            showrooms_car.dealer = min_price_offer.dealer
-            showrooms_car.save()
-    else:
-        showrooms_car.dealer = min_price_offer.dealer
-        showrooms_car.save()
