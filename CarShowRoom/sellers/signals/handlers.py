@@ -34,7 +34,6 @@ def get_new_car_price(sender, instance, **kwargs):
                 dealercar_object = DealerCar.objects.get(
                     Q(car=instance.car_id) & Q(dealer=showroom_car.dealer_id)
                 )
-                print(dealercar_object)
             except ObjectDoesNotExist:
                 instance.delete()
                 raise ValueError(

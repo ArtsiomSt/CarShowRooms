@@ -7,7 +7,14 @@ from django.utils import timezone
 
 from CarShowRoom.celery import app
 from cars.models import Car
-from sellers.models import CarShowRoom, DealerCar, ShowroomCar, Dealer, Balance
+from sellers.models import (
+    CarShowRoom,
+    DealerCar,
+    ShowroomCar,
+    Dealer,
+    Balance,
+    SupplyHistory,
+)
 
 
 @app.task
@@ -144,4 +151,11 @@ def supply_cars_from_dealer(
         )
         ShowroomCar.objects.filter(car_showroom=showroom, car=car).update(
             car_amount=F("car_amount") + car_amount
+        )
+        SupplyHistory.objects.create(
+            car_showroom=showroom,
+            dealer=dealer,
+            car_price=price_for_one_car,
+            car=car,
+            cars_amount=car_amount,
         )

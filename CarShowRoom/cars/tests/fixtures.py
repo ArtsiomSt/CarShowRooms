@@ -1,8 +1,11 @@
+import random
+
 import pytest
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from cars.models import CarBrand
+from core.enums.carenums import PriceCategory
 from sellers.models import DealerCar
 
 from .factory import CarFactory
@@ -46,3 +49,19 @@ def get_two_car_brands():
         return CarBrand.objects.bulk_create([car_brand_one, car_brand_two])
 
     return two_car_brands
+
+
+@pytest.fixture
+def get_cars():
+    def result_function(amount, car_brands):
+        cars = [
+            CarFactory(
+                car_brand=random.choice(car_brands),
+                title=f"car{counter}",
+                price_category=random.choice(PriceCategory.names()),
+            )
+            for counter in range(amount)
+        ]
+        return cars
+
+    return result_function
