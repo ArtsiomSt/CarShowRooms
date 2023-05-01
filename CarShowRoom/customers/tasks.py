@@ -13,7 +13,7 @@ from sellers.models import Balance, CarShowRoom, DealerCar, DiscountCar, Showroo
 def process_offers():
     """This function processes all unprocessed offers"""
 
-    offers = Offer.objects.filter(is_processed=False).select_related(
+    offers = Offer.objects.filter(is_processed=False, is_active=True).select_related(
         "made_by_customer", "car", "made_by_customer__balance"
     )
     for offer in offers:
@@ -64,7 +64,7 @@ def get_car_price_from_showroomcar(showroom_car: ShowroomCar):
 
 def commit_offer(offer: Offer, showroom: CarShowRoom, price: Decimal):
     with transaction.atomic():
-        if offer.made_by_customer.balance.money_amount < price:
+        if Balance.objects.get(pk=offer.made_by_customer.balance.pk).money_amount < price:
             return  # Process if customer does not have enough money
         Balance.objects.filter(pk=offer.made_by_customer.balance.pk).update(
             money_amount=F("money_amount") - price, last_spent=timezone.now()

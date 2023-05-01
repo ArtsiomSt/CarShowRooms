@@ -141,7 +141,7 @@ def supply_cars_from_dealer(
 
     with transaction.atomic():
         money_amount = price_for_one_car * car_amount
-        if showroom.balance.money_amount < money_amount:
+        if Balance.objects.get(pk=showroom.balance.pk).money_amount < money_amount:
             return  # process if showroom does not have enough money
         Balance.objects.filter(pk=showroom.balance.pk).update(
             money_amount=F("money_amount") - money_amount, last_spent=timezone.now()
