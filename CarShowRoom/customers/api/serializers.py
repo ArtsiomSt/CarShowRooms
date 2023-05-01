@@ -25,6 +25,8 @@ class CustomerSerializer(RegisterSerializer):
 
 
 class OfferSerializer(serializers.ModelSerializer):
+    """Serializer for creating and processing offers from customers"""
+
     car = CarSerializer(read_only=True)
     car_id = serializers.IntegerField(write_only=True)
 

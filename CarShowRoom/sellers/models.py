@@ -158,6 +158,7 @@ class SupplyHistory(CarPriceCurrency):
     car = models.ForeignKey(Car, on_delete=models.CASCADE, related_name="supplies")
     cars_amount = models.IntegerField(validators=[validate_positive])
     date_of_supply = models.DateTimeField(auto_now_add=True)
+    details = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.car} supply"

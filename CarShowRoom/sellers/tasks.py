@@ -142,6 +142,14 @@ def supply_cars_from_dealer(
     with transaction.atomic():
         money_amount = price_for_one_car * car_amount
         if Balance.objects.get(pk=showroom.balance.pk).money_amount < money_amount:
+            SupplyHistory.objects.create(
+                car_showroom=showroom,
+                dealer=dealer,
+                car_price=price_for_one_car,
+                car=car,
+                cars_amount=car_amount,
+                details="Impossible to supply cars, showroom doesn't have enough money"
+            )
             return  # process if showroom does not have enough money
         Balance.objects.filter(pk=showroom.balance.pk).update(
             money_amount=F("money_amount") - money_amount, last_spent=timezone.now()
@@ -158,4 +166,5 @@ def supply_cars_from_dealer(
             car_price=price_for_one_car,
             car=car,
             cars_amount=car_amount,
+            details="Successful supply"
         )

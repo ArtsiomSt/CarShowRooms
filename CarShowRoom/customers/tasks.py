@@ -28,8 +28,12 @@ def process_offers():
             if offer.max_price >= best_price_offer:
                 commit_offer(offer, minimal_price_offer.car_showroom, best_price_offer)
             else:
+                offer.details = "There are no cars that fit your requirements"
+                offer.save()
                 continue  # process if there is no offer for such requirements
         else:
+            offer.details = "There is no opportunity to buy this car right now"
+            offer.save()
             continue  # process if there is no such currently available
 
 
@@ -65,6 +69,8 @@ def get_car_price_from_showroomcar(showroom_car: ShowroomCar):
 def commit_offer(offer: Offer, showroom: CarShowRoom, price: Decimal):
     with transaction.atomic():
         if Balance.objects.get(pk=offer.made_by_customer.balance.pk).money_amount < price:
+            offer.details = "You don't have enough money to complete this purchase"
+            offer.save()
             return  # Process if customer does not have enough money
         Balance.objects.filter(pk=offer.made_by_customer.balance.pk).update(
             money_amount=F("money_amount") - price, last_spent=timezone.now()
@@ -76,6 +82,7 @@ def commit_offer(offer: Offer, showroom: CarShowRoom, price: Decimal):
             car_amount=F("car_amount") - 1, car_sold=F("car_sold") + 1
         )
         offer.is_processed = True
+        offer.details = "Offer is processed successfully"
         offer.save()
         TransactionHistory.objects.create(
             made_by_customer=offer.made_by_customer,
