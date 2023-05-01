@@ -1,12 +1,12 @@
 from decimal import Decimal
 
-from CarShowRoom.celery import app
-from django.db.models import Q, F
 from django.db import transaction
+from django.db.models import F, Q
 from django.utils import timezone
 
+from CarShowRoom.celery import app
 from customers.models import Offer, TransactionHistory
-from sellers.models import ShowroomCar, DealerCar, DiscountCar, Balance, CarShowRoom
+from sellers.models import Balance, CarShowRoom, DealerCar, DiscountCar, ShowroomCar
 
 
 @app.task

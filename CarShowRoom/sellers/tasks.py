@@ -2,17 +2,17 @@ from decimal import Decimal
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
-from django.db.models import Q, F
+from django.db.models import F, Q
 from django.utils import timezone
 
-from CarShowRoom.celery import app
 from cars.models import Car
+from CarShowRoom.celery import app
 from sellers.models import (
+    Balance,
     CarShowRoom,
+    Dealer,
     DealerCar,
     ShowroomCar,
-    Dealer,
-    Balance,
     SupplyHistory,
 )
 

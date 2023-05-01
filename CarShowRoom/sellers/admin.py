@@ -3,13 +3,12 @@ from django.contrib import admin
 from sellers.models import (
     Balance,
     CarShowRoom,
-    Discount,
     Dealer,
-    ShowroomCar,
     DealerCar,
+    Discount,
     DiscountCar,
+    ShowroomCar,
 )
-
 
 admin.site.register(Balance)
 admin.site.register(CarShowRoom)

@@ -5,23 +5,24 @@ from decimal import Decimal
 import pytest
 from django.db.models import F, Sum
 from django.utils import timezone
+
 from cars.models import CarBrand
 from core.enums.carenums import PriceCategory
 from sellers.models import (
-    DealerCar,
-    ShowroomBrand,
-    ShowroomCar,
     Balance,
-    SupplyHistory,
     CarShowRoom,
     Dealer,
+    DealerCar,
     Discount,
     DiscountCar,
+    ShowroomBrand,
+    ShowroomCar,
+    SupplyHistory,
 )
 from sellers.tasks import (
+    supply_cars_from_dealers,
     update_dealer_showroom_relations,
     update_showrooms_car,
-    supply_cars_from_dealers,
 )
 
 pytest_plugins = [
@@ -234,8 +235,6 @@ def test_showroom_car_dealer_relations_easy(get_showrooms, get_dealers, get_cars
         ShowroomCar.objects.get(car_showroom=showrooms[1], car=cars[5]).dealer is None
     )
     start_money_amount = Decimal(100000)
-    with open("file.txt", "w") as file:
-        pass
     for showroom in showrooms:
         showroom.balance.money_amount = start_money_amount
         showroom.balance.save()
