@@ -4,13 +4,13 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.viewsets import GenericViewSet
+from rest_framework.viewsets import GenericViewSet, ViewSet
 
 from CarShowRoom.settings import USER_CONFIRMATION_KEY
 
 from .models import User
 from .serializers import ChangeCredsDataSerializer
-from .service import send_change_credentials_email, send_verification_email
+from .service import send_change_credentials_email, send_verification_email, return_message
 
 
 class ConfirmEmailView(APIView):
@@ -34,7 +34,7 @@ class ConfirmEmailView(APIView):
         )
 
 
-class ManualConfirmEmailView(GenericViewSet):
+class ManualConfirmEmailViewSet(ViewSet):
     """View for manually sending a request for email verification"""
 
     permission_classes = [IsAuthenticated]
@@ -64,10 +64,24 @@ class ManualConfirmEmailView(GenericViewSet):
             status=status.HTTP_200_OK,
         )
 
+    def forgot_password(self, request):
+        if not request.user.is_email_verified:
+            return Response({"message": "you have to confirm your email before changing password"})
+        send_change_credentials_email(
+            request.user,
+            "Email verification",
+            "To change your credentials use this link",
+            request,
+        )
+        return Response(
+            {
+                "message": f"we have sent you a link for changing credentials, check {request.user.email}"
+            },
+            status=status.HTTP_200_OK,
+        )
 
-class ChangePasswordView(GenericViewSet):
-    queryset = User.objects.filter(is_active=True)
 
+class ChangePasswordViewSet(ViewSet):
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop("partial", False)
         redis_key = USER_CONFIRMATION_KEY.format(token=kwargs["token"])

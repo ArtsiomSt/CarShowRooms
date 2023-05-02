@@ -53,7 +53,8 @@ class ChangeCredsDataSerializer(serializers.ModelSerializer):
     )
 
     def update(self, instance, validated_data):
-        validated_data["password"] = make_password(validated_data["password"])
+        if "password" in validated_data.keys():
+            validated_data["password"] = make_password(validated_data["password"])
         if "email" in validated_data.keys():
             if validated_data["email"] != instance.email:
                 validated_data["is_email_verified"] = False

@@ -6,7 +6,7 @@ from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from core.views import ConfirmEmailView, ManualConfirmEmailView, ChangePasswordView
+from core.views import ConfirmEmailView, ManualConfirmEmailViewSet, ChangePasswordViewSet
 
 from .settings import DEBUG, SHOW_SWAGGER
 
@@ -41,17 +41,22 @@ token_urls = (
         ),
         path(
             "manualemailverify/",
-            ManualConfirmEmailView.as_view({"get": "verify_email"}),
+            ManualConfirmEmailViewSet.as_view({"get": "verify_email"}),
             name="manual_email_confirm",
         ),
         path(
             "sendchangecreds/",
-            ManualConfirmEmailView.as_view({"get": "creds_change"}),
-            name="manual_email_confirm",
+            ManualConfirmEmailViewSet.as_view({"get": "creds_change"}),
+            name="change_creds",
+        ),
+        path(
+            "forgotpass/",
+            ManualConfirmEmailViewSet.as_view({"get": "forgot_password"}),
+            name="forgot_password",
         ),
         path(
             "changecreds/<str:token>",
-            ChangePasswordView.as_view({"put": "update", "patch": "partial_update"}),
+            ChangePasswordViewSet.as_view({"put": "update", "patch": "partial_update"}),
             name='creds_change'
         )
     ],
