@@ -34,6 +34,7 @@ class Offer(DefaultTimeFields):
         Customer, on_delete=models.CASCADE, related_name="offers"
     )
     car = models.ForeignKey(Car, on_delete=models.CASCADE, related_name="offers")
+    details = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return f"Offer made by {self.made_by_customer} for the {self.car}"
@@ -55,7 +56,7 @@ class TransactionHistory(DefaultTimeFields):
     )
 
     def __str__(self):
-        return "Transaction"
+        return f"Transaction from {self.made_by_customer}"
 
 
 class ShowroomCustomer(models.Model):

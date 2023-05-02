@@ -5,8 +5,8 @@ from django_countries.fields import CountryField
 from cars.models import Car, CarBrand
 from core.enums.carenums import PriceCategory
 from core.enums.moneyenums import MoneyCurrency
-from core.models import CarPriceCurrency, User, DefaultTimeFields
-from core.validation.validators import validate_positive, validate_discount
+from core.models import CarPriceCurrency, DefaultTimeFields, User
+from core.validation.validators import validate_discount, validate_positive
 
 
 class CarShowRoom(User):
@@ -143,3 +143,22 @@ class DiscountCar(models.Model):
     currency = models.CharField(
         max_length=30, choices=MoneyCurrency.choices(), default=MoneyCurrency.USD.name
     )
+
+    def __str__(self):
+        return f"{self.car} discount"
+
+
+class SupplyHistory(CarPriceCurrency):
+    car_showroom = models.ForeignKey(
+        CarShowRoom, on_delete=models.PROTECT, related_name="supplies"
+    )
+    dealer = models.ForeignKey(
+        Dealer, on_delete=models.PROTECT, related_name="supplies"
+    )
+    car = models.ForeignKey(Car, on_delete=models.CASCADE, related_name="supplies")
+    cars_amount = models.IntegerField(validators=[validate_positive])
+    date_of_supply = models.DateTimeField(auto_now_add=True)
+    details = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.car} supply"

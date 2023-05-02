@@ -2,12 +2,19 @@ from decimal import Decimal
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
-from django.db.models import Q, F
+from django.db.models import F, Q
 from django.utils import timezone
 
-from CarShowRoom.celery import app
 from cars.models import Car
-from sellers.models import CarShowRoom, DealerCar, ShowroomCar, Dealer, Balance
+from CarShowRoom.celery import app
+from sellers.models import (
+    Balance,
+    CarShowRoom,
+    Dealer,
+    DealerCar,
+    ShowroomCar,
+    SupplyHistory,
+)
 
 
 @app.task
@@ -134,7 +141,15 @@ def supply_cars_from_dealer(
 
     with transaction.atomic():
         money_amount = price_for_one_car * car_amount
-        if showroom.balance.money_amount < money_amount:
+        if Balance.objects.get(pk=showroom.balance.pk).money_amount < money_amount:
+            SupplyHistory.objects.create(
+                car_showroom=showroom,
+                dealer=dealer,
+                car_price=price_for_one_car,
+                car=car,
+                cars_amount=car_amount,
+                details="Impossible to supply cars, showroom doesn't have enough money"
+            )
             return  # process if showroom does not have enough money
         Balance.objects.filter(pk=showroom.balance.pk).update(
             money_amount=F("money_amount") - money_amount, last_spent=timezone.now()
@@ -144,4 +159,12 @@ def supply_cars_from_dealer(
         )
         ShowroomCar.objects.filter(car_showroom=showroom, car=car).update(
             car_amount=F("car_amount") + car_amount
+        )
+        SupplyHistory.objects.create(
+            car_showroom=showroom,
+            dealer=dealer,
+            car_price=price_for_one_car,
+            car=car,
+            cars_amount=car_amount,
+            details="Successful supply"
         )
