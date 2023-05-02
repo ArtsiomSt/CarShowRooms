@@ -214,7 +214,7 @@ CACHES = {
 }
 
 USER_CONFIRMATION_KEY = os.getenv("USER_CONFIRMATION_KEY")
-USER_CONFIRMATION_TIMEOUT = 300
+USER_CONFIRMATION_TIMEOUT = 3000  # it is for me to make it easier to debug this
 
 AUTH_USER_MODEL = "core.User"
 

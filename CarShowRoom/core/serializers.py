@@ -5,6 +5,7 @@ from rest_framework import serializers
 from sellers.models import Balance
 
 from .enums.moneyenums import MoneyCurrency
+from .models import User
 from .service import send_verification_email
 from .validation.validators import validate_positive
 
@@ -42,3 +43,22 @@ class CarPriceCurrencySerializer(serializers.Serializer):
         max_digits=6, decimal_places=2, validators=[validate_positive]
     )
     currency = serializers.ChoiceField(choices=MoneyCurrency.choices())
+
+
+class ChangeCredsDataSerializer(serializers.ModelSerializer):
+    """This serializer is used to changed user's credentials"""
+
+    password = serializers.CharField(
+        max_length=100, write_only=True, validators=[validate_password]
+    )
+
+    def update(self, instance, validated_data):
+        validated_data["password"] = make_password(validated_data["password"])
+        if "email" in validated_data.keys():
+            if validated_data["email"] != instance.email:
+                validated_data["is_email_verified"] = False
+        return super().update(instance, validated_data)
+
+    class Meta:
+        model = User
+        fields = ("password", "email")
