@@ -1,13 +1,23 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.utils import IntegrityError
+from django.db import transaction
 from rest_framework import serializers
 
 from cars.api.serializers import CarBrandSerializer, CarSerializer
 from cars.models import Car
+from core.exceptions import CreationException
 from core.mixins import AddBalanceIfOwnerMixin
+from core.enums.userenums import UserType
 from core.serializers import RegisterSerializer
 from sellers.mixins import ChangeShowRoomBrandsMixin
-from sellers.models import CarShowRoom, Dealer, DealerCar, ShowroomCar
+from sellers.models import (
+    CarShowRoom,
+    Dealer,
+    DealerCar,
+    ShowroomCar,
+    Discount,
+    DiscountCar,
+)
 from sellers.tasks import update_cars_suppliers
 
 
@@ -149,3 +159,72 @@ class DealerCarSerializer(serializers.ModelSerializer):
     class Meta:
         model = DealerCar
         fields = ("car_price", "currency")
+
+
+class DiscountSerializer(serializers.ModelSerializer):
+    dealer = DealerSerializer(read_only=True)
+    car_showroom = CarShowRoomSerializer(read_only=True)
+    car_ids = serializers.ListSerializer(
+        child=serializers.IntegerField(), write_only=True
+    )
+
+    @property
+    def data(self):
+        res = super().data
+        if res["dealer"] is None:
+            res.pop("dealer")
+        elif res["car_showroom"] is None:
+            res.pop("car_showroom")
+            res["dealer"].pop("car_list")
+        else:
+            res["details"] = "This discount seems to have no owner"
+        return res
+
+    def create(self, validated_data):
+        request = self.context["request"]
+        user_id = request.user.pk
+        with transaction.atomic():
+            car_ids = validated_data.pop("car_ids")
+            if request.user.user_type == UserType.CARSHOWROOM.name:
+                validated_data["car_showroom"] = CarShowRoom.objects.get(pk=user_id)
+                owners_cars = validated_data["car_showroom"].car_list.filter(
+                    is_active=True
+                )
+            elif request.user.user_type == UserType.DEALER.name:
+                validated_data["dealer"] = Dealer.objects.get(pk=user_id)
+                owners_cars = validated_data["dealer"].car_list.filter(is_active=True)
+            else:
+                raise CreationException(
+                    {"message": "impossible to create discount from this account"}
+                )
+            instance = super().create(validated_data)
+            discount_car_objects = []
+            for car_id in car_ids:
+                try:
+                    car = Car.objects.get(pk=car_id)
+                except ObjectDoesNotExist:
+                    raise CreationException(
+                        {"message": f"there is no such car with id {car_id}"}
+                    )
+                if car in owners_cars:
+                    discount_car_objects.append(DiscountCar(car=car, discount=instance))
+                else:
+                    raise CreationException(
+                        {"message": f"you dont sell car with id {car_id}"}
+                    )
+            if discount_car_objects:
+                DiscountCar.objects.bulk_create(discount_car_objects)
+            return instance
+
+    class Meta:
+        model = Discount
+        fields = (
+            "id",
+            "start_date",
+            "end_date",
+            "discount_percent",
+            "dealer",
+            "car_showroom",
+            "car_ids",
+        )
+        read_only_fields = ("id",)

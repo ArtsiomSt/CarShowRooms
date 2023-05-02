@@ -1,4 +1,9 @@
-from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
+from rest_framework.mixins import (
+    CreateModelMixin,
+    ListModelMixin,
+    RetrieveModelMixin,
+    UpdateModelMixin,
+)
 from rest_framework.viewsets import GenericViewSet
 
 from customers.api.permissions import IsCustomer
@@ -15,7 +20,13 @@ class CustomerRegisterViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
     serializer_class = CustomerSerializer
 
 
-class OfferViewSet(ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, GenericViewSet):
+class OfferViewSet(
+    ListModelMixin,
+    CreateModelMixin,
+    RetrieveModelMixin,
+    UpdateModelMixin,
+    GenericViewSet,
+):
     """ViewSet that provides all manipulations with customer's offers"""
 
     permission_classes = [IsCustomer]

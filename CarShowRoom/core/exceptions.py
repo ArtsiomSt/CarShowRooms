@@ -10,3 +10,8 @@ class NoSuchObjectException(APIException):
 class ObjectCanNotBeChanged(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
     default_detail = {"message": "this object can't be changed"}
+
+
+class CreationException(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = {"message": "impossible to create an object"}

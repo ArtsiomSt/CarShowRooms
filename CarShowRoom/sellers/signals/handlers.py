@@ -43,3 +43,19 @@ def get_new_car_price(sender, instance, **kwargs):
             1 - round(Decimal(instance.discount.discount_percent / 100), 2)
         )
         instance.save()
+
+
+@receiver(post_save, sender=DealerCar)
+def update_car_prices(sender, instance, **kwargs):
+    """This signal is used to update field new_car_price in existing DiscountCar objects"""
+
+    existing_discountcar_objects = instance.car.discountcar_set.all()
+    for discountcar in existing_discountcar_objects:
+        cars_discount = discountcar.discount
+        sold_with_discount = discountcar.sold_with_discount
+        discountcar.delete()
+        DiscountCar.objects.create(
+            car=instance.car,
+            discount=cars_discount,
+            sold_with_discount=sold_with_discount,
+        )

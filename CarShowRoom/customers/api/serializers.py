@@ -31,22 +31,22 @@ class OfferSerializer(serializers.ModelSerializer):
     car_id = serializers.IntegerField(write_only=True)
 
     def create(self, validated_data):
-        request = self.context['request']
-        validated_data['made_by_customer'] = Customer.objects.get(pk=request.user.pk)
-        car_id = validated_data.pop('car_id')
+        request = self.context["request"]
+        validated_data["made_by_customer"] = Customer.objects.get(pk=request.user.pk)
+        car_id = validated_data.pop("car_id")
         try:
-            validated_data['car'] = Car.objects.get(pk=car_id)
+            validated_data["car"] = Car.objects.get(pk=car_id)
         except ObjectDoesNotExist:
             raise NoSuchObjectException({"car_id": "there is no car with such id"})
         instance = super().create(validated_data)
         process_offers.delay()
         return instance
-    
+
     def update(self, instance, validated_data):
         if "car_id" in validated_data.keys():
             car_id = validated_data.pop("car_id")
             try:
-                validated_data['car'] = Car.objects.get(pk=car_id)
+                validated_data["car"] = Car.objects.get(pk=car_id)
             except ObjectDoesNotExist:
                 raise NoSuchObjectException({"car_id": "there is no car with such id"})
         instance = super().update(instance, validated_data)
@@ -55,5 +55,13 @@ class OfferSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Offer
-        fields = ("id", "max_price", "currency", "is_processed", "car_id", "car", "details")
+        fields = (
+            "id",
+            "max_price",
+            "currency",
+            "is_processed",
+            "car_id",
+            "car",
+            "details",
+        )
         read_only_fields = ("is_processed", "car", "details", "id")
