@@ -13,6 +13,7 @@ from CarShowRoom.settings import USER_CONFIRMATION_KEY
 from .mixins import DynamicPermissionMixin
 from .models import User
 from .permissions import IsAnonymous
+from .reports import get_incomes_expenses, get_cars_stats
 from .serializers import ChangeCredsDataSerializer, ForgotPasswordSerializer
 from .service import send_change_credentials_email, send_verification_email
 
@@ -94,7 +95,6 @@ class ChangePasswordViewSet(ViewSet):
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop("partial", False)
         redis_key = USER_CONFIRMATION_KEY.format(token=kwargs["token"])
-        print(kwargs["token"])
         user_info = cache.get(redis_key)
         if user_info:
             user_id = user_info.get("user_id", "")
@@ -120,3 +120,16 @@ class ChangePasswordViewSet(ViewSet):
     def partial_update(self, request, *args, **kwargs):
         kwargs["partial"] = True
         return self.update(request, *args, **kwargs)
+
+
+class ReportViewSet(ViewSet):
+
+    @action(detail=False, methods=['get'])
+    def supply_reports(self, request):
+        reports = get_incomes_expenses()
+        return Response(reports)
+
+    @action(detail=False, methods=['get'])
+    def car_reports(self, request):
+        reports = get_cars_stats()
+        return Response(reports)
