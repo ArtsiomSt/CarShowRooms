@@ -39,7 +39,7 @@ def return_message(
 
 
 def send_change_credentials_email(
-    instance, topic: str, message_before_link: str, request
+    instance, topic: str, message_before_link: str, request, reset=False
 ):
     """Function that creates and sends link for changing credentials of user"""
 
@@ -49,6 +49,8 @@ def send_change_credentials_email(
     confirm_link = request.build_absolute_uri(
         reverse_lazy("tokens:creds_change", kwargs={"token": token})
     )
+    if reset:
+        confirm_link += "reset=True"
     send_mail(
         topic,
         f"{message_before_link}\n{confirm_link}",

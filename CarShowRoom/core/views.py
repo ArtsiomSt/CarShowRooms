@@ -1,16 +1,20 @@
 from django.core.cache import cache
+from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
 from rest_framework import status
+from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.viewsets import GenericViewSet, ViewSet
+from rest_framework.viewsets import ViewSet
 
 from CarShowRoom.settings import USER_CONFIRMATION_KEY
 
+from .mixins import DynamicPermissionMixin
 from .models import User
-from .serializers import ChangeCredsDataSerializer
-from .service import send_change_credentials_email, send_verification_email, return_message
+from .permissions import IsAnonymous
+from .serializers import ChangeCredsDataSerializer, ForgotPasswordSerializer
+from .service import send_change_credentials_email, send_verification_email
 
 
 class ConfirmEmailView(APIView):
@@ -34,11 +38,15 @@ class ConfirmEmailView(APIView):
         )
 
 
-class ManualConfirmEmailViewSet(ViewSet):
+class ManualConfirmEmailViewSet(DynamicPermissionMixin, ViewSet):
     """View for manually sending a request for email verification"""
 
-    permission_classes = [IsAuthenticated]
+    permission_mapping = {
+        ("verify_email", "creds_change"): [IsAuthenticated],
+        ("forgot_password",): [IsAnonymous],
+    }
 
+    @action(detail=True, methods=["get"])
     def verify_email(self, request):
         send_verification_email(
             request.user, "Email verification", "To confirm email use this", request
@@ -50,6 +58,7 @@ class ManualConfirmEmailViewSet(ViewSet):
             status=status.HTTP_200_OK,
         )
 
+    @action(detail=True, methods=["get"])
     def creds_change(self, request):
         send_change_credentials_email(
             request.user,
@@ -64,18 +73,18 @@ class ManualConfirmEmailViewSet(ViewSet):
             status=status.HTTP_200_OK,
         )
 
+    @action(detail=True, methods=["post"])
     def forgot_password(self, request):
-        if not request.user.is_email_verified:
-            return Response({"message": "you have to confirm your email before changing password"})
-        send_change_credentials_email(
-            request.user,
-            "Email verification",
-            "To change your credentials use this link",
-            request,
-        )
+        serializer = ForgotPasswordSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        users_email = serializer.validated_data["email"]
+        try:
+            serializer.send_reset_password_email(users_email, request)
+        except ObjectDoesNotExist:
+            return Response({"message": "there is no user with such email"})
         return Response(
             {
-                "message": f"we have sent you a link for changing credentials, check {request.user.email}"
+                "message": f"we have sent you a link for changing credentials, check {users_email}"
             },
             status=status.HTTP_200_OK,
         )
@@ -85,6 +94,7 @@ class ChangePasswordViewSet(ViewSet):
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop("partial", False)
         redis_key = USER_CONFIRMATION_KEY.format(token=kwargs["token"])
+        print(kwargs["token"])
         user_info = cache.get(redis_key)
         if user_info:
             user_id = user_info.get("user_id", "")
@@ -94,6 +104,9 @@ class ChangePasswordViewSet(ViewSet):
                     instance, data=request.data, partial=partial
                 )
                 serializer.is_valid(raise_exception=True)
+                serializer.validated_data["reset"] = bool(
+                    request.GET.get("reset", False)
+                )
                 serializer.save()
                 return Response(
                     {"message": "credentials changed successfully"},

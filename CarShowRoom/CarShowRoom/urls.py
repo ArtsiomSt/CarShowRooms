@@ -51,7 +51,7 @@ token_urls = (
         ),
         path(
             "forgotpass/",
-            ManualConfirmEmailViewSet.as_view({"get": "forgot_password"}),
+            ManualConfirmEmailViewSet.as_view({"post": "forgot_password"}),
             name="forgot_password",
         ),
         path(
