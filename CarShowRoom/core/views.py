@@ -123,13 +123,14 @@ class ChangePasswordViewSet(ViewSet):
 
 
 class ReportViewSet(ViewSet):
+    """This ViewSet stands for creating and sending reports about system"""
 
-    @action(detail=False, methods=['get'])
-    def supply_reports(self, request):
+    @action(detail=False, methods=["get"])
+    def turnover_reports(self, request):
         reports = get_incomes_expenses()
         return Response(reports)
 
-    @action(detail=False, methods=['get'])
+    @action(detail=False, methods=["get"])
     def car_reports(self, request):
         reports = get_cars_stats()
         return Response(reports)

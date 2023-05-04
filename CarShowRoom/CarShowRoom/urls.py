@@ -6,7 +6,12 @@ from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from core.views import ConfirmEmailView, ManualConfirmEmailViewSet, ChangePasswordViewSet, ReportViewSet
+from core.views import (
+    ConfirmEmailView,
+    ManualConfirmEmailViewSet,
+    ChangePasswordViewSet,
+    ReportViewSet,
+)
 
 from .settings import DEBUG, SHOW_SWAGGER
 
@@ -57,25 +62,25 @@ token_urls = (
         path(
             "change-creds/<str:token>",
             ChangePasswordViewSet.as_view({"put": "update", "patch": "partial_update"}),
-            name='creds_change'
-        )
+            name="creds_change",
+        ),
     ],
     "tokens",
 )
 
 report_urls = (
     [
-        path("incomes-expenses/", ReportViewSet.as_view({"get": "supply_reports"})),
-        path("cars-stats/", ReportViewSet.as_view({"get": "car_reports"}))
+        path("incomes-expenses/", ReportViewSet.as_view({"get": "turnover_reports"})),
+        path("cars-stats/", ReportViewSet.as_view({"get": "car_reports"})),
     ],
-    "reports"
+    "reports",
 )
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/v1/", include(api_v1_urls)),
     path("auth/", include(token_urls)),
-    path("reports/", include(report_urls))
+    path("reports/", include(report_urls)),
 ]
 
 if DEBUG:
