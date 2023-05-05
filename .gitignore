@@ -133,3 +133,4 @@ env/db.env
 env/backends.env
 env/swagger.env
 CarShowRoom/setup.cfg
+CarShowRoom/static

@@ -6,7 +6,12 @@ from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from core.views import ConfirmEmailView, ManualConfirmEmailViewSet, ChangePasswordViewSet
+from core.views import (
+    ConfirmEmailView,
+    ManualConfirmEmailViewSet,
+    ChangePasswordViewSet,
+    ReportViewSet,
+)
 
 from .settings import DEBUG, SHOW_SWAGGER
 
@@ -37,36 +42,45 @@ token_urls = (
         path("token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
         path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
         path(
-            "verifyemail/<str:token>", ConfirmEmailView.as_view(), name="email_confirm"
+            "verify-email/<str:token>", ConfirmEmailView.as_view(), name="email_confirm"
         ),
         path(
-            "manualemailverify/",
+            "manual-email-verify/",
             ManualConfirmEmailViewSet.as_view({"get": "verify_email"}),
             name="manual_email_confirm",
         ),
         path(
-            "sendchangecreds/",
+            "send-change-creds/",
             ManualConfirmEmailViewSet.as_view({"get": "creds_change"}),
             name="change_creds",
         ),
         path(
-            "forgotpass/",
+            "forgot-pass/",
             ManualConfirmEmailViewSet.as_view({"post": "forgot_password"}),
             name="forgot_password",
         ),
         path(
-            "changecreds/<str:token>",
+            "change-creds/<str:token>",
             ChangePasswordViewSet.as_view({"put": "update", "patch": "partial_update"}),
-            name='creds_change'
-        )
+            name="creds_change",
+        ),
     ],
     "tokens",
+)
+
+report_urls = (
+    [
+        path("incomes-expenses/", ReportViewSet.as_view({"get": "turnover_reports"})),
+        path("cars-stats/", ReportViewSet.as_view({"get": "car_reports"})),
+    ],
+    "reports",
 )
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/v1/", include(api_v1_urls)),
     path("auth/", include(token_urls)),
+    path("reports/", include(report_urls)),
 ]
 
 if DEBUG:

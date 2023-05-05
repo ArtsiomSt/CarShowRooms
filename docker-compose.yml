@@ -3,7 +3,7 @@ version: "3.9"
 services:
   web:
     build: CarShowRoom
-    command: bash -c "./manage.py migrate &&while :; do exec ./manage.py runserver 0.0.0.0:8000; done;"
+    command: bash -c "python manage.py migrate && python manage.py collectstatic --no-input && gunicorn CarShowRoom.wsgi:application --bind 0.0.0.0:8000"
     ports:
       - "8000:8000"
     depends_on:
@@ -13,6 +13,7 @@ services:
       - env/backends.env
     volumes:
       - ./CarShowRoom:/app
+      - static:/static
   db:
     image: postgres:12
     volumes:
@@ -48,6 +49,17 @@ services:
       - env/backends.env
     depends_on:
       - redis
+  nginx:
+    build: ./nginx
+    volumes:
+      - static:/static
+    ports:
+      - "80:80"
+    depends_on:
+      - web
 
 volumes:
   postgres_data:
+  static:
+
+

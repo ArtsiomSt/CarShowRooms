@@ -33,6 +33,7 @@ APPEND_SLASH = False
 
 ALLOWED_HOSTS = [
     "0.0.0.0",
+    "django"
 ]
 
 INTERNAL_IPS = ["127.0.0.1", "0.0.0.0"]
@@ -137,6 +138,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
+STATIC_ROOT = "static/"
 STATIC_URL = "static/"
 
 # Default primary key field type
@@ -233,3 +235,5 @@ CELERY_RESULT_SERIALIZER = "json"
 
 hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
 INTERNAL_IPS += [".".join(ip.split(".")[:-1] + ["1"]) for ip in ips]
+
+CSRF_TRUSTED_ORIGINS = ['http://0.0.0.0']

@@ -21,6 +21,7 @@ django-redis = "*"
 pytest-django = "*"
 pytest-factoryboy = "*"
 celery = "*"
+gunicorn = "*"
 
 [dev-packages]
 
