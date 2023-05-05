@@ -235,3 +235,5 @@ CELERY_RESULT_SERIALIZER = "json"
 
 hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
 INTERNAL_IPS += [".".join(ip.split(".")[:-1] + ["1"]) for ip in ips]
+
+CSRF_TRUSTED_ORIGINS = ['http://0.0.0.0']

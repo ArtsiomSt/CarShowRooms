@@ -80,6 +80,16 @@ def get_cars_stats():
                         "car_title": car["car__title"],
                     }
                     cars_by_showroom["best_sold_car"] = best_sold_car
+        showrooms_customers = TransactionHistory.objects.values(
+            "sold_by_showroom_id", "made_by_customer_id", "made_by_customer__username"
+        ).distinct()
+        cars_by_showroom["customers_stats"] = [
+            {
+                "id": customer["made_by_customer_id"],
+                "username": customer["made_by_customer__username"],
+            }
+            for customer in showrooms_customers
+        ]
         showrooms.append(cars_by_showroom)
     for dealer in dealer_objects:
         cars_by_dealer = {
