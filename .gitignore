@@ -104,7 +104,6 @@ celerybeat.pid
 # Environments
 .env
 .venv
-env/
 venv/
 ENV/
 env.bak/
@@ -127,3 +126,11 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+.idea
+CarShowRoom/.idea
+env/db.env
+env/backends.env
+env/swagger.env
+CarShowRoom/setup.cfg
+CarShowRoom/static
